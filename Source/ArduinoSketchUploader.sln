@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArduinoSketchUploader", "ArduinoSketchUploader\ArduinoSketchUploader.csproj", "{679338C5-351A-4E24-961B-A1550FFF4C88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Command Line Utility", "Command Line Utility", "{593154F0-8779-4854-AD95-FE1BB4741B11}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{FBF29502-C0C8-43D7-9618-C205E98480E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArduinoUploader", "ArduinoUploader\ArduinoUploader.csproj", "{76B83943-5E26-4A25-A2BC-074C13744150}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{679338C5-351A-4E24-961B-A1550FFF4C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{679338C5-351A-4E24-961B-A1550FFF4C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{679338C5-351A-4E24-961B-A1550FFF4C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{679338C5-351A-4E24-961B-A1550FFF4C88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76B83943-5E26-4A25-A2BC-074C13744150}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76B83943-5E26-4A25-A2BC-074C13744150}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76B83943-5E26-4A25-A2BC-074C13744150}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76B83943-5E26-4A25-A2BC-074C13744150}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{679338C5-351A-4E24-961B-A1550FFF4C88} = {593154F0-8779-4854-AD95-FE1BB4741B11}
+		{76B83943-5E26-4A25-A2BC-074C13744150} = {FBF29502-C0C8-43D7-9618-C205E98480E6}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ArduinoUploader</id>
+    <version>$version$</version>
+    <title>ArduinoUploader</title>
+    <authors>Christophe Diericx</authors>
+    <owners>Christophe Diericx</owners>
+    <projectUrl>https://github.com/christophediericx/ArduinoLibCSharp</projectUrl>
+    <iconUrl>https://avatars3.githubusercontent.com/u/19640854?s=140</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A library to upload an Intel HEX file (e.g. compiled sketches) directly to an Arduino (UNO) over a (USB) serial port without having to use the Arduino IDE (or avrdude).</description>
+    <releaseNotes></releaseNotes>
+    <copyright></copyright>
+    <tags>arduino upload serial avr flash hex</tags>
+    <dependencies>
+      <dependency id="IntelHexFormatReader" version="1.0.0" />
+	  <dependency id="Nlog" version="4.0.0" />
+    </dependencies>  
+  </metadata>
+  <files>
+	<file src="bin\$configuration$\ArduinoUploader.dll" target="lib\net40\" />
+  </files>
+</package>
