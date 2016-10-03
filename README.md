@@ -6,7 +6,30 @@ A .NET library and a Windows command line utility to upload a compiled sketch (.
 
 ## How to use the command line application ##
 
-## How to use the library ##
+[Download the latest Windows binaries here (.zip file, version 1.0.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v1.0.0/ArduinoSketchUploader-1.0.0.zip)
+
+When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
+
+```
+ArduinoSketchUploader 1.0.0.0
+Copyright c  2016
+
+ERROR(S):
+  -f/--file required option is missing.
+  -p/--port required option is missing.
+
+
+  -f, --file    Required. Path to the input file (in intel HEX format) which is
+                to be uploaded to the Arduino.
+
+  -p, --port    Required. Name of the COM port where the Arduino is attached
+                (e.g. 'COM1', 'COM2', 'COM3'...).
+
+  --help        Display this help screen.
+```
+
+
+## How to use the .NET library ##
 
 Link the following nuget package in your project in order to use the ArduinoUploader: https://www.nuget.org/packages/ArduinoUploader/
 
