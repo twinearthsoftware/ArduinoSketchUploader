@@ -1,6 +1,6 @@
 # ArduinoSketchUploader
 
-A command line utility and a library which can be used to upload a compiled sketch (.hex file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
+A Windows command line utility and a .NET library which can be used to upload a compiled sketch (.hex file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
 
 ## How to use the command line application ##
 
