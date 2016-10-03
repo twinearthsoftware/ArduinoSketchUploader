@@ -2,6 +2,8 @@
 
 A Windows command line utility and a .NET library which can be used to upload a compiled sketch (.hex file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
 
+> *Compatibility note: This library has only been tested with UNO based Arduino boards. It is expected that tweaking of hardware constants in the STK-500 bootloader communication is required in order to support other architectures.*
+
 ## How to use the command line application ##
 
 ## How to use the library ##
