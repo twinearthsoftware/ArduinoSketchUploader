@@ -6,7 +6,7 @@
     <title>ArduinoUploader</title>
     <authors>Christophe Diericx</authors>
     <owners>Christophe Diericx</owners>
-    <projectUrl>https://github.com/christophediericx/ArduinoLibCSharp</projectUrl>
+    <projectUrl>https://github.com/christophediericx/ArduinoUploader</projectUrl>
     <iconUrl>https://avatars3.githubusercontent.com/u/19640854?s=140</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A library to upload an Intel HEX file (e.g. compiled sketches) directly to an Arduino (UNO) over a (USB) serial port without having to use the Arduino IDE (or avrdude).</description>
