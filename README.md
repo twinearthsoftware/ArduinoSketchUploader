@@ -1,6 +1,6 @@
 # ArduinoSketchUploader
 
-A .NET library and a Windows command line utility to upload a compiled sketch (.HEX file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
+This repository contains both a .NET library and a Windows command line utility to upload a compiled sketch (.HEX file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
 
 > *Compatibility note: This library has only been tested with UNO based Arduino boards. It is expected that tweaking of hardware constants in the STK-500 bootloader communication is required in order to support other architectures.*
 
