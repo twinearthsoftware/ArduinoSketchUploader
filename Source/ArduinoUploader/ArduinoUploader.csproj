@@ -30,8 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IntelHexFormatReader">
-      <HintPath>..\packages\IntelHexFormatReader.1.0.0\lib\net45\IntelHexFormatReader.dll</HintPath>
+    <Reference Include="IntelHexFormatReader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IntelHexFormatReader.2.0.0\lib\net45\IntelHexFormatReader.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
