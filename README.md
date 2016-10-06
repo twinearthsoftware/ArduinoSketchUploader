@@ -1,12 +1,35 @@
 # ArduinoSketchUploader
 
-A Windows command line utility and a .NET library which can be used to upload a compiled sketch (.HEX file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
+This repository contains both a .NET library and a Windows command line utility to upload a compiled sketch (.HEX file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
 
-> *Compatibility note: This library has only been tested with UNO based Arduino boards. It is expected that tweaking of hardware constants in the STK-500 bootloader communication is required in order to support other architectures.*
+> *Compatibility note: This library has only been tested with UNO (ATMega328P) based Arduino boards. It is expected that tweaking of hardware constants in the STK-500 bootloader communication is required in order to support other architectures.*
 
 ## How to use the command line application ##
 
-## How to use the library ##
+[Download the latest Windows binaries here (.zip file, version 1.0.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v1.0.0/ArduinoSketchUploader-1.0.0.zip)
+
+When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
+
+```
+ArduinoSketchUploader 1.0.0.0
+Copyright c  2016
+
+ERROR(S):
+  -f/--file required option is missing.
+  -p/--port required option is missing.
+
+
+  -f, --file    Required. Path to the input file (in intel HEX format) which is
+                to be uploaded to the Arduino.
+
+  -p, --port    Required. Name of the COM port where the Arduino is attached
+                (e.g. 'COM1', 'COM2', 'COM3'...).
+
+  --help        Display this help screen.
+```
+
+
+## How to use the .NET library ##
 
 Link the following nuget package in your project in order to use the ArduinoUploader: https://www.nuget.org/packages/ArduinoUploader/
 
