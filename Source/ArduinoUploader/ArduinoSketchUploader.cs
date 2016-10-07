@@ -15,7 +15,7 @@ using NLog;
 namespace ArduinoUploader
 {
     /// <summary>
-    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino.
+    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino (UNO).
     /// 
     /// This code was heavily inspired by avrdude's STK500 implementation.
     /// </summary>
@@ -212,7 +212,7 @@ namespace ArduinoUploader
 
         private void ProgramDevice()
         {
-            var sizeToWrite = hexFileMemoryBlock.MaxAddress;
+            var sizeToWrite = hexFileMemoryBlock.HighestModifiedOffset + 1;
             const byte pageSize = ATMega328Constants.ATMEGA328_FLASH_PAGESIZE;
             logger.Info("Preparing to write {0} bytes...", sizeToWrite);
             logger.Info("Flash memory page size: {0}.", pageSize);
