@@ -6,7 +6,7 @@ This repository contains both a .NET library and a Windows command line utility 
 
 ## How to use the command line application ##
 
-[Download the latest Windows binaries here (.zip file, version 1.0.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v1.0.0/ArduinoSketchUploader-1.0.0.zip)
+[Download the latest Windows binaries here (.zip file, version 1.0.3).](https://github.com/christophediericx/ArduinoSketchUploader/files/515179/ArduinoSketchUploader-1.0.3.zip)
 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
