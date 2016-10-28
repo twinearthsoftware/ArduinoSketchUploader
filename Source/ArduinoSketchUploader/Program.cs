@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using ArduinoUploader;
-using NLog;
+﻿using ArduinoUploader;
 
 namespace ArduinoSketchUploader
 {
@@ -11,13 +9,8 @@ namespace ArduinoSketchUploader
     /// </summary>
     internal class Program
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         private static void Main(string[] args)
         {
-            Logger.Info("Starting ArduinoLibCSharp.SketchUploader version {0}...",
-                Assembly.GetExecutingAssembly().GetName().Version);
-
             var commandLineOptions = new CommandLineOptions();
             if (!CommandLine.Parser.Default.ParseArguments(args, commandLineOptions)) return;
 

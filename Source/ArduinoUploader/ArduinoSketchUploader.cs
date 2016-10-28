@@ -204,7 +204,8 @@ namespace ArduinoUploader
 
         private void CheckDeviceSignature()
         {
-            logger.Info("Checking device signature, excpecting to find 0x1e 0x95 0x0f...");
+            logger.Info("Checking device signature...");
+            logger.Debug("Expecting to find 0x1e 0x95 0x0f...");
             serialPort.SendWithSyncRetry(new ReadSignatureRequest());
             var response = serialPort.Receive<ReadSignatureResponse>(4);
             if (response == null || !response.IsCorrectResponse)
