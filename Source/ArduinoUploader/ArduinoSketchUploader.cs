@@ -48,7 +48,9 @@ namespace ArduinoUploader
             var serialPortName = options.PortName;
             hexFileMemoryBlock = ReadHexFile(hexFileContents);
 
-            if (SerialPort.GetPortNames().SingleOrDefault(x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
+            var ports = SerialPort.GetPortNames();
+
+            if (!ports.Any() || ports.Distinct().SingleOrDefault(x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
                 UploaderLogger.LogAndThrowError<ArgumentException>(string.Format("Specified COM port name '{0}' is not valid.", serialPortName));
 
             logger.Trace("Creating serial port '{0}'...", serialPortName);
