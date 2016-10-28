@@ -15,7 +15,7 @@ using NLog;
 namespace ArduinoUploader
 {
     /// <summary>
-    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino (UNO).
+    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino.
     /// 
     /// This code was heavily inspired by avrdude's STK500 implementation.
     /// </summary>
@@ -50,8 +50,12 @@ namespace ArduinoUploader
 
             var ports = SerialPort.GetPortNames();
 
-            if (!ports.Any() || ports.Distinct().SingleOrDefault(x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
-                UploaderLogger.LogAndThrowError<ArgumentException>(string.Format("Specified COM port name '{0}' is not valid.", serialPortName));
+            if (!ports.Any() || ports.Distinct().SingleOrDefault(
+                x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
+            {
+                UploaderLogger.LogAndThrowError<ArgumentException>(
+                    string.Format("Specified COM port name '{0}' is not valid.", serialPortName));
+            }
 
             logger.Trace("Creating serial port '{0}'...", serialPortName);
             serialPort = new UploaderSerialPort(serialPortName, UploadBaudRate);
@@ -209,7 +213,8 @@ namespace ArduinoUploader
             var signature = response.Signature;
             if (signature[0] != 0x1e || signature[1] != 0x95 || signature[2] != 0x0f)
                 UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format("Signature {0} {1} {2} was different than what was expected!", signature[0], signature[1], signature[2]));
+                    string.Format("Signature {0} {1} {2} was different than what was expected!", 
+                        signature[0], signature[1], signature[2]));
         }
 
         private void ProgramDevice()
