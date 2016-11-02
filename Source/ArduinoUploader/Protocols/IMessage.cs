@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader.ArduinoSTK500Protocol.Messages
+﻿namespace ArduinoUploader.Protocols
 {
     internal interface IMessage
     {

@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader.ArduinoSTK500Protocol.CommandConstants
+﻿namespace ArduinoUploader.Protocols.STK500v1.CommandConstants
 {
     internal static class CommandConstants
     {

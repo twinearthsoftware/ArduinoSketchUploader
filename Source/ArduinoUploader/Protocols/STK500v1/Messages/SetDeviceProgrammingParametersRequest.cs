@@ -1,6 +1,6 @@
-﻿using ArduinoUploader.ArduinoSTK500Protocol.HardwareConstants;
+﻿using ArduinoUploader.Protocols.STK500v1.HardwareConstants;
 
-namespace ArduinoUploader.ArduinoSTK500Protocol.Messages
+namespace ArduinoUploader.Protocols.STK500v1.Messages
 {
     internal class SetDeviceProgrammingParametersRequest : Request
     {

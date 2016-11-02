@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader.ArduinoSTK500Protocol.Messages
+﻿namespace ArduinoUploader.Protocols.STK500v1.Messages
 {
     internal class GetSyncRequest : Request
     {

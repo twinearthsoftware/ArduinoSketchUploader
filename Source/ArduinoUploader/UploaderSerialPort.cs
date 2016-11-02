@@ -1,6 +1,6 @@
 ﻿using System.IO.Ports;
 
-namespace ArduinoUploader.ArduinoSTK500Protocol
+namespace ArduinoUploader
 {
     internal class UploaderSerialPort : SerialPort
     {

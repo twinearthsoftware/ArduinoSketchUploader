@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader.ArduinoSTK500Protocol.HardwareConstants
+﻿namespace ArduinoUploader.Protocols.STK500v1.HardwareConstants
 {
     internal static class ATMega328Constants
     {
