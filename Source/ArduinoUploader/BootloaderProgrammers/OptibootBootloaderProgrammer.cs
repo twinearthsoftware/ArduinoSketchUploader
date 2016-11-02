@@ -37,7 +37,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
 
             if (i == UploaderSerialPort.MaxSyncRetries)
-                UploaderLogger.LogAndThrowError<IOException>(string.Format("Unable to establish sync after {0} retries!", UploaderSerialPort.MaxSyncRetries));
+                UploaderLogger.LogAndThrowError<IOException>(
+                    string.Format("Unable to establish sync after {0} retries!", UploaderSerialPort.MaxSyncRetries));
 
             var nextByte = ReceiveNext();
 
