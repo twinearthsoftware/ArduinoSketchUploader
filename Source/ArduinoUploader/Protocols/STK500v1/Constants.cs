@@ -1,6 +1,6 @@
-﻿namespace ArduinoUploader.Protocols.STK500v1.CommandConstants
+﻿namespace ArduinoUploader.Protocols.STK500v1
 {
-    internal static class CommandConstants
+    internal static class Constants
     {
         internal const byte Cmnd_STK_GET_SYNC               = 0x30;
         internal const byte Cmnd_STK_GET_PARAMETER          = 0x41;

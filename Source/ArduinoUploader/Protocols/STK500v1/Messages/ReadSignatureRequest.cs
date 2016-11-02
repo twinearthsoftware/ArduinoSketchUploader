@@ -6,8 +6,8 @@
         {
             Bytes = new[]
             {
-                CommandConstants.CommandConstants.Cmnd_STK_READ_SIGNATURE,
-                CommandConstants.CommandConstants.Sync_CRC_EOP
+                Constants.Cmnd_STK_READ_SIGNATURE,
+                Constants.Sync_CRC_EOP
             };
         }
     }

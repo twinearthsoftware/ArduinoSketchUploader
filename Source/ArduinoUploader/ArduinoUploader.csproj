@@ -41,12 +41,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArduinoModel.cs" />
+    <Compile Include="Hardware\ArduinoModel.cs" />
     <Compile Include="ArduinoSketchUploader.cs" />
     <Compile Include="ArduinoSketchUploaderOptions.cs" />
     <Compile Include="BootloaderProgrammers\BootloaderProgrammer.cs" />
-    <Compile Include="Protocols\STK500v1\CommandConstants\CommandConstants.cs" />
-    <Compile Include="Protocols\STK500v1\HardwareConstants\ATMega328Constants.cs" />
+    <Compile Include="Hardware\ATMega328P.cs" />
+    <Compile Include="Hardware\ATMegaMCU.cs" />
+    <Compile Include="Hardware\MCU.cs" />
+    <Compile Include="Protocols\STK500v1\Constants.cs" />
     <Compile Include="Protocols\STK500v1\Messages\EnableProgrammingModeRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\ExecutePagedWriteRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetParameterRequest.cs" />

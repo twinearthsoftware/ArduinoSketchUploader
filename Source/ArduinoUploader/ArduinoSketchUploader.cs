@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using ArduinoUploader.BootloaderProgrammers;
-using ArduinoUploader.Protocols.STK500v1.HardwareConstants;
+using ArduinoUploader.Hardware;
 using IntelHexFormatReader;
 using IntelHexFormatReader.Model;
 using NLog;
@@ -40,7 +40,6 @@ namespace ArduinoUploader
         public void UploadSketch(IEnumerable<string> hexFileContents)
         {
             var serialPortName = options.PortName;
-            var hexFileMemoryBlock = ReadHexFile(hexFileContents);
 
             var ports = SerialPort.GetPortNames();
 
@@ -54,8 +53,12 @@ namespace ArduinoUploader
             logger.Trace("Creating serial port '{0}'...", serialPortName);
             serialPort = new UploaderSerialPort(serialPortName, UploadBaudRate);
 
+            var mcu = new ATMega328P();
+
+            var hexFileMemoryBlock = ReadHexFile(hexFileContents, mcu.FlashSize);
+
             SerialPortBootloaderProgrammer bootloaderProgrammer = 
-                new OptibootBootloaderProgrammer(serialPort, hexFileMemoryBlock);
+                new OptibootBootloaderProgrammer(serialPort, mcu, hexFileMemoryBlock);
 
             try
             {
@@ -79,11 +82,11 @@ namespace ArduinoUploader
 
         #region Private Methods
 
-        private static MemoryBlock ReadHexFile(IEnumerable<string> hexFileContents)
+        private static MemoryBlock ReadHexFile(IEnumerable<string> hexFileContents, int memorySize)
         {
             try
             {
-                var reader = new HexFileReader(hexFileContents, ATMega328Constants.ATMEGA328_FLASH_SIZE);
+                var reader = new HexFileReader(hexFileContents, memorySize);
                 return reader.Parse();
             }
             catch (Exception ex)

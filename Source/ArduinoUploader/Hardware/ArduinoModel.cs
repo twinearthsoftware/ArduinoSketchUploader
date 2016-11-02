@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader
+﻿namespace ArduinoUploader.Hardware
 {
     internal enum ArduinoModel
     {

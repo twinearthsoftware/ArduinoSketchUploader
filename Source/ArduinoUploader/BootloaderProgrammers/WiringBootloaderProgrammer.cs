@@ -1,4 +1,5 @@
-﻿using IntelHexFormatReader.Model;
+﻿using ArduinoUploader.Hardware;
+using IntelHexFormatReader.Model;
 using NLog;
 
 namespace ArduinoUploader.BootloaderProgrammers
@@ -7,8 +8,8 @@ namespace ArduinoUploader.BootloaderProgrammers
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MemoryBlock memoryBlock)
-            : base(serialPort, memoryBlock)
+        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, MemoryBlock memoryBlock)
+            : base(serialPort, mcu, memoryBlock)
         {
         }
 

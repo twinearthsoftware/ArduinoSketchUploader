@@ -4,7 +4,7 @@
     {
         public bool IsCorrectResponse
         {
-            get { return Bytes.Length == 4 && Bytes[3] == CommandConstants.CommandConstants.Resp_STK_OK; }
+            get { return Bytes.Length == 4 && Bytes[3] == Constants.Resp_STK_OK; }
         }
 
         public byte[] Signature

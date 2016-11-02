@@ -6,9 +6,9 @@
         {
             Bytes = new[]
             {
-                CommandConstants.CommandConstants.Cmnd_STK_GET_PARAMETER,
+                Constants.Cmnd_STK_GET_PARAMETER,
                 param,
-                CommandConstants.CommandConstants.Sync_CRC_EOP
+                Constants.Sync_CRC_EOP
             };
         }
     }

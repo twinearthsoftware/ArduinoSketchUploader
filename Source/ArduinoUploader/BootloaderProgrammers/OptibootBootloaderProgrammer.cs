@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using ArduinoUploader.Hardware;
 using ArduinoUploader.Protocols;
-using ArduinoUploader.Protocols.STK500v1.CommandConstants;
-using ArduinoUploader.Protocols.STK500v1.HardwareConstants;
+using ArduinoUploader.Protocols.STK500v1;
 using ArduinoUploader.Protocols.STK500v1.Messages;
 using IntelHexFormatReader.Model;
 using NLog;
@@ -14,8 +14,8 @@ namespace ArduinoUploader.BootloaderProgrammers
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, MemoryBlock memoryBlock)
-            : base(serialPort, memoryBlock)
+        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, MemoryBlock memoryBlock)
+            : base(serialPort, mcu, memoryBlock)
         {
         }
 
@@ -41,7 +41,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
             var nextByte = ReceiveNext();
 
-            if (nextByte != CommandConstants.Resp_STK_OK)
+            if (nextByte != Constants.Resp_STK_OK)
                 UploaderLogger.LogAndThrowError<IOException>("Unable to establish sync.");
         }
 
@@ -49,8 +49,8 @@ namespace ArduinoUploader.BootloaderProgrammers
         {
             SendWithSyncRetry(
                 request,
-                (b) => b == CommandConstants.Resp_STK_NOSYNC,
-                (b) => b == CommandConstants.Resp_STK_INSYNC);
+                (b) => b == Constants.Resp_STK_NOSYNC,
+                (b) => b == Constants.Resp_STK_INSYNC);
         }
 
         public override void CheckDeviceSignature()
@@ -72,15 +72,15 @@ namespace ArduinoUploader.BootloaderProgrammers
         public override void InitializeDevice()
         {
             logger.Info("Initializing device!");
-            var majorVersion = GetParameterValue(CommandConstants.Parm_STK_SW_MAJOR);
-            var minorVersion = GetParameterValue(CommandConstants.Parm_STK_SW_MINOR);
+            var majorVersion = GetParameterValue(Constants.Parm_STK_SW_MAJOR);
+            var minorVersion = GetParameterValue(Constants.Parm_STK_SW_MINOR);
             logger.Info("Retrieved software version: {0}.{1}.", majorVersion, minorVersion);
 
             logger.Info("Setting device programming parameters...");
-            SendWithSyncRetry(new SetDeviceProgrammingParametersRequest());
+            SendWithSyncRetry(new SetDeviceProgrammingParametersRequest((ATMegaMCU)MCU));
             var nextByte = ReceiveNext();
 
-            if (nextByte != CommandConstants.Resp_STK_OK)
+            if (nextByte != Constants.Resp_STK_OK)
                 UploaderLogger.LogAndThrowError<IOException>("Unable to set device programming parameters!");
             logger.Info("Device initialized!");
         }
@@ -90,15 +90,15 @@ namespace ArduinoUploader.BootloaderProgrammers
             logger.Info("Enabling programming mode on the device...");
             SendWithSyncRetry(new EnableProgrammingModeRequest());
             var nextByte = ReceiveNext();
-            if (nextByte == CommandConstants.Resp_STK_OK) return;
-            if (nextByte == CommandConstants.Resp_STK_NODEVICE || nextByte == CommandConstants.Resp_STK_Failed)
+            if (nextByte == Constants.Resp_STK_OK) return;
+            if (nextByte == Constants.Resp_STK_NODEVICE || nextByte == Constants.Resp_STK_Failed)
                 UploaderLogger.LogAndThrowError<IOException>("Unable to enable programming mode on the device!");
         }
 
         public override void ProgramDevice()
         {
             var sizeToWrite = MemoryBlock.HighestModifiedOffset + 1;
-            const byte pageSize = ATMega328Constants.ATMEGA328_FLASH_PAGESIZE;
+            var pageSize = ((ATMegaMCU)MCU).FlashPageSize;
             logger.Info("Preparing to write {0} bytes...", sizeToWrite);
             logger.Info("Flash memory page size: {0}.", pageSize);
 
@@ -133,9 +133,9 @@ namespace ArduinoUploader.BootloaderProgrammers
             var paramValue = (uint)nextByte;
             nextByte = ReceiveNext();
 
-            if (nextByte == CommandConstants.Resp_STK_Failed)
+            if (nextByte == Constants.Resp_STK_Failed)
                 UploaderLogger.LogAndThrowError<IOException>(string.Format("Fetching parameter '{0}' failed!", param));
-            if (nextByte != CommandConstants.Resp_STK_OK)
+            if (nextByte != Constants.Resp_STK_OK)
                 UploaderLogger.LogAndThrowError<IOException>(string.Format("Protocol error while retrieving parameter '{0}'", param));
             return paramValue;
         }
@@ -152,7 +152,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 var bytesToCopy = MemoryBlock.Cells.Skip(addr).Take(pageSize).Select(x => x.Value).ToArray();
                 SendWithSyncRetry(new ExecutePagedWriteRequest(pageSize, blockSize, bytesToCopy));
                 var nextByte = ReceiveNext();
-                if (nextByte == CommandConstants.Resp_STK_OK) return;
+                if (nextByte == Constants.Resp_STK_OK) return;
                 UploaderLogger.LogAndThrowError<IOException>(
                     string.Format("Write for address page from address {0} failed!", addr));
             }
@@ -162,7 +162,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         {
             SendWithSyncRetry(new LoadAddressRequest(addr));
             var result = ReceiveNext();
-            if (result == CommandConstants.Resp_STK_OK) return;
+            if (result == Constants.Resp_STK_OK) return;
             UploaderLogger.LogAndThrowError<IOException>(string.Format("LoadAddress failed with result {0}!", result));
         }
     }
