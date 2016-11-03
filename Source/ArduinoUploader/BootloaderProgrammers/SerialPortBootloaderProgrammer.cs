@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using ArduinoUploader.Protocols;
 using IntelHexFormatReader.Model;
@@ -37,7 +38,13 @@ namespace ArduinoUploader.BootloaderProgrammers
         protected virtual void Send(IRequest request)
         {
             var bytes = request.Bytes;
-            SerialPort.Write(bytes, 0, bytes.Length);
+            var length = bytes.Length;
+            logger.Trace(
+                "Sending {0} bytes: {1}{2}{3}{4}", 
+                length, 
+                Environment.NewLine, BitConverter.ToString(bytes),
+                Environment.NewLine, string.Join("-", bytes.Select(x => " " + Convert.ToChar(x))));
+            SerialPort.Write(bytes, 0, length);
         }
 
         protected virtual void SendWithSyncRetry(IRequest request, Func<byte,bool> noSync, Func<byte,bool> inSync)
@@ -59,18 +66,24 @@ namespace ArduinoUploader.BootloaderProgrammers
                     string.Format("Unable to aqcuire sync in SendWithSyncRetry for request of type {0}!", request.GetType()));
         }
 
-        internal TResponse Receive<TResponse>(int length = 1) where TResponse : Response
+        protected virtual TResponse Receive<TResponse>(int length = 1) where TResponse : Response
         {
             var bytes = new byte[length];
             try
             {
                 SerialPort.Read(bytes, 0, length);
+                logger.Trace(
+                    "Received {0} bytes: {1}{2}{3}{4}",
+                    length,
+                    Environment.NewLine, BitConverter.ToString(bytes),
+                    Environment.NewLine, string.Join("-", bytes.Select(x => " " + Convert.ToChar(x))));
                 var result = (TResponse) Activator.CreateInstance(typeof(TResponse));
                 result.Bytes = bytes;
                 return result;
             }
             catch (TimeoutException)
             {
+                logger.Trace(BootloaderProgrammerMessages.TIMEOUT);
                 return null;
             }
         }

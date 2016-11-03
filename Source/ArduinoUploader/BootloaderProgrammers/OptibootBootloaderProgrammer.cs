@@ -28,7 +28,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         public override void EstablishSync()
         {
             int i;
-            for (i = 0; i < UploaderSerialPort.MaxSyncRetries; i++)
+            for (i = 0; i < MaxSyncRetries; i++)
             {
                 Send(new GetSyncRequest());
                 var result = Receive<GetSyncResponse>();
@@ -36,14 +36,15 @@ namespace ArduinoUploader.BootloaderProgrammers
                 if (result.IsInSync) break;
             }
 
-            if (i == UploaderSerialPort.MaxSyncRetries)
+            if (i == MaxSyncRetries)
                 UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format("Unable to establish sync after {0} retries!", UploaderSerialPort.MaxSyncRetries));
+                    string.Format(BootloaderProgrammerMessages.NO_SYNC_WITH_RETRIES, MaxSyncRetries));
 
             var nextByte = ReceiveNext();
 
             if (nextByte != Constants.Resp_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to establish sync.");
+                UploaderLogger.LogAndThrowError<IOException>(
+                    BootloaderProgrammerMessages.NO_SYNC);
         }
 
         protected void SendWithSyncRetry(IRequest request)

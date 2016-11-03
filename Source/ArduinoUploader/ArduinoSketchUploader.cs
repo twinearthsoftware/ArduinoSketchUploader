@@ -53,12 +53,12 @@ namespace ArduinoUploader
             logger.Trace("Creating serial port '{0}'...", serialPortName);
             serialPort = new UploaderSerialPort(serialPortName, UploadBaudRate);
 
-            var mcu = new ATMega328P();
+            var mcu = new ATMega2560(0, 0, 0, 0, 0, 0);
 
             var hexFileMemoryBlock = ReadHexFile(hexFileContents, mcu.FlashSize);
 
             SerialPortBootloaderProgrammer bootloaderProgrammer = 
-                new OptibootBootloaderProgrammer(serialPort, mcu, hexFileMemoryBlock);
+                new WiringBootloaderProgrammer(serialPort, mcu, hexFileMemoryBlock);
 
             try
             {

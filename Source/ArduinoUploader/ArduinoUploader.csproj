@@ -45,6 +45,7 @@
     <Compile Include="ArduinoSketchUploader.cs" />
     <Compile Include="ArduinoSketchUploaderOptions.cs" />
     <Compile Include="BootloaderProgrammers\BootloaderProgrammer.cs" />
+    <Compile Include="Hardware\ATMega2560.cs" />
     <Compile Include="Hardware\ATMega328P.cs" />
     <Compile Include="Hardware\ATMegaMCU.cs" />
     <Compile Include="Hardware\MCU.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="Protocols\STK500v1\Messages\ExecutePagedWriteRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetParameterRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetSyncRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\GetSyncRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetSyncResponse.cs" />
     <Compile Include="Protocols\IMessage.cs" />
     <Compile Include="Protocols\IRequest.cs" />
@@ -62,6 +64,8 @@
     <Compile Include="Protocols\Request.cs" />
     <Compile Include="Protocols\Response.cs" />
     <Compile Include="Protocols\STK500v1\Messages\SetDeviceProgrammingParametersRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Constants.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\GetSyncResponse.cs" />
     <Compile Include="UploaderSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
