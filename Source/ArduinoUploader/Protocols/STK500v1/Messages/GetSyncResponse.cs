@@ -4,7 +4,7 @@
     {
         public bool IsInSync
         {
-            get { return Bytes.Length > 0 && Bytes[0] == Constants.Resp_STK_INSYNC; }
+            get { return Bytes.Length > 0 && Bytes[0] == Constants.RESP_STK_INSYNC; }
         }
     }
 }

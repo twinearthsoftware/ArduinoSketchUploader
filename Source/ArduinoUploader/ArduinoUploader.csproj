@@ -48,12 +48,17 @@
     <Compile Include="Hardware\ATMega2560.cs" />
     <Compile Include="Hardware\ATMega328P.cs" />
     <Compile Include="Hardware\ATMegaMCU.cs" />
+    <Compile Include="Hardware\Command.cs" />
     <Compile Include="Hardware\MCU.cs" />
     <Compile Include="Protocols\STK500v1\Constants.cs" />
     <Compile Include="Protocols\STK500v1\Messages\EnableProgrammingModeRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\ExecutePagedWriteRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetParameterRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetSyncRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeResponse.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\GetParameterRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\GetParameterResponse.cs" />
     <Compile Include="Protocols\STK500v2\Messages\GetSyncRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetSyncResponse.cs" />
     <Compile Include="Protocols\IMessage.cs" />

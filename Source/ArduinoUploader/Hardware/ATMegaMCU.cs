@@ -1,28 +1,35 @@
-﻿namespace ArduinoUploader.Hardware
+﻿using System.Collections.Generic;
+
+namespace ArduinoUploader.Hardware
 {
     internal abstract class ATMegaMCU : MCU
     {
-        protected ATMegaMCU(byte devcode, byte fuse, byte lfuse, byte hfuse, byte efuse, 
-            byte flashPageSize, int flashSize, int epromSize)
-        {
-            DevCode = devcode;
-            Fuse = fuse;
-            LFuse = lfuse;
-            HFuse = hfuse;
-            EFuse = efuse;
-            FlashPageSize = flashPageSize;
-            FlashSize = flashSize;
-            EpromSize = epromSize;
-        }
+        public abstract int FlashSize { get; }
+        public abstract int FlashPageSize { get; }
+        public abstract int EEPROMSize { get; }
 
-        public byte DevCode { get; private set; }
-        public byte Fuse { get; private set; }
-        public byte LFuse { get; private set; }
-        public byte HFuse { get; private set; }
-        public byte EFuse { get; private set; }
-        public byte FlashPageSize { get; private set; }
+        public abstract byte DeviceCode { get; }
+        public abstract byte DeviceRevision { get; }
+        public abstract byte LockBytes { get; }
+        public abstract byte FuseBytes { get; }
+        public abstract byte FlashPollVal1 { get; }
+        public abstract byte FlashPollVal2 { get; }
+        public abstract byte EEPROMPollVal1 { get; }
+        public abstract byte EEPROMPollVal2 { get; }
 
-        public int FlashSize { get; set; }
-        public int EpromSize { get; set; }
+        public abstract byte Timeout { get; }
+        public abstract byte StabDelay { get; }
+        public abstract byte CmdExeDelay { get; }
+        public abstract byte SynchLoops { get; }
+        public abstract byte ByteDelay { get; }
+        public abstract byte PollValue { get; }
+        public abstract byte PollIndex { get; }
+
+        public abstract IDictionary<Command, byte[]> CommandBytes { get; }
+
+        public virtual byte ProgType { get { return 0; } }
+        public virtual byte ParallelMode { get { return 0; } }
+        public virtual byte Polling { get { return 1; } }
+        public virtual byte SelfTimed { get { return 1; } }
     }
 }

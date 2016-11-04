@@ -10,8 +10,8 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
             get
             {
                 return Bytes.Length > 1 
-                    && Bytes[0] == Constants.Cmnd_SIGN_ON 
-                    && Bytes[1] == Constants.Status_CMD_OK;
+                    && Bytes[0] == Constants.CMD_SIGN_ON 
+                    && Bytes[1] == Constants.STATUS_CMD_OK;
             }
         }
 

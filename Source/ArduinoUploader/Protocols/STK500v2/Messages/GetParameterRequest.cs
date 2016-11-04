@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader.Protocols.STK500v1.Messages
+﻿namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class GetParameterRequest : Request
     {
@@ -6,9 +6,8 @@
         {
             Bytes = new[]
             {
-                Constants.CMD_STK_GET_PARAMETER,
-                param,
-                Constants.SYNC_CRC_EOP
+                Constants.CMD_GET_PARAMETER,
+                param
             };
         }
     }

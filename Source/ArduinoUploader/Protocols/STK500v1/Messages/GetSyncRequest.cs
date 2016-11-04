@@ -6,8 +6,8 @@
         {
             Bytes = new[]
             {
-                Constants.Cmnd_STK_GET_SYNC,
-                Constants.Sync_CRC_EOP
+                Constants.CMD_STK_GET_SYNC,
+                Constants.SYNC_CRC_EOP
             };
         }
     }

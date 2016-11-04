@@ -6,7 +6,7 @@
         {
             Bytes = new[]
             {
-                Constants.Cmnd_SIGN_ON
+                Constants.CMD_SIGN_ON
             };
         }
     }

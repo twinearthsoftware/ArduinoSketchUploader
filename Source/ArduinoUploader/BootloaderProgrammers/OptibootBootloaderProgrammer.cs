@@ -13,6 +13,7 @@ namespace ArduinoUploader.BootloaderProgrammers
     internal class OptibootBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private const string EXPECTED_DEVICE_SIGNATURE = "1e-95-0f";
 
         internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, MemoryBlock memoryBlock)
             : base(serialPort, mcu, memoryBlock)
@@ -42,59 +43,95 @@ namespace ArduinoUploader.BootloaderProgrammers
 
             var nextByte = ReceiveNext();
 
-            if (nextByte != Constants.Resp_STK_OK)
+            if (nextByte != Constants.RESP_STK_OK)
                 UploaderLogger.LogAndThrowError<IOException>(
                     BootloaderProgrammerMessages.NO_SYNC);
         }
 
+        protected TResponse Receive<TResponse>(int length = 1) where TResponse : Response
+        {
+            var bytes = new byte[length];
+            try
+            {
+                SerialPort.Read(bytes, 0, length);
+                logger.Trace(
+                    "Received {0} bytes: {1}{2}{3}{4}",
+                    length,
+                    Environment.NewLine, BitConverter.ToString(bytes),
+                    Environment.NewLine, string.Join("-", bytes.Select(x => " " + Convert.ToChar(x))));
+                var result = (TResponse)Activator.CreateInstance(typeof(TResponse));
+                result.Bytes = bytes;
+                return result;
+            }
+            catch (TimeoutException)
+            {
+                logger.Trace(BootloaderProgrammerMessages.TIMEOUT, SerialPort.ReadTimeout);
+                return null;
+            }
+        }
+
         protected void SendWithSyncRetry(IRequest request)
         {
-            SendWithSyncRetry(
-                request,
-                (b) => b == Constants.Resp_STK_NOSYNC,
-                (b) => b == Constants.Resp_STK_INSYNC);
+            byte nextByte;
+            while (true)
+            {
+                Send(request);
+                nextByte = (byte)ReceiveNext();
+                if (nextByte == Constants.RESP_STK_NOSYNC)
+                {
+                    EstablishSync();
+                    continue;
+                }
+                break;
+            }
+            if (nextByte != Constants.RESP_STK_INSYNC)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    string.Format(BootloaderProgrammerMessages.SEND_WITH_SYNC_RETRY_FAILURE, 
+                        request.GetType()));
         }
 
         public override void CheckDeviceSignature()
         {
-            logger.Info("Checking device signature...");
-            logger.Debug("Expecting to find 0x1e 0x95 0x0f...");
+            logger.Debug(BootloaderProgrammerMessages.DEVICE_SIG_EXPECTED, EXPECTED_DEVICE_SIGNATURE);
             SendWithSyncRetry(new ReadSignatureRequest());
             var response = Receive<ReadSignatureResponse>(4);
             if (response == null || !response.IsCorrectResponse)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to check device signature!");
+                UploaderLogger.LogAndThrowError<IOException>(
+                    BootloaderProgrammerMessages.CHECK_DEVICE_SIG_FAILURE);
+
             // ReSharper disable once PossibleNullReferenceException
             var signature = response.Signature;
             if (signature[0] != 0x1e || signature[1] != 0x95 || signature[2] != 0x0f)
                 UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format("Signature {0} {1} {2} was different than what was expected!",
-                        signature[0], signature[1], signature[2]));
+                    string.Format(
+                        BootloaderProgrammerMessages.UNEXPECTED_DEVICE_SIG,
+                        BitConverter.ToString(signature), 
+                        EXPECTED_DEVICE_SIGNATURE));
         }
 
         public override void InitializeDevice()
         {
-            logger.Info("Initializing device!");
-            var majorVersion = GetParameterValue(Constants.Parm_STK_SW_MAJOR);
-            var minorVersion = GetParameterValue(Constants.Parm_STK_SW_MINOR);
-            logger.Info("Retrieved software version: {0}.{1}.", majorVersion, minorVersion);
+            var majorVersion = GetParameterValue(Constants.PARM_STK_SW_MAJOR);
+            var minorVersion = GetParameterValue(Constants.PARM_STK_SW_MINOR);
+            logger.Info(BootloaderProgrammerMessages.SOFTWARE_VERSION, 
+                string.Format("{0}.{1}", majorVersion, minorVersion));
 
-            logger.Info("Setting device programming parameters...");
+            logger.Info(BootloaderProgrammerMessages.SET_DEVICE_PARAMS);
             SendWithSyncRetry(new SetDeviceProgrammingParametersRequest((ATMegaMCU)MCU));
             var nextByte = ReceiveNext();
 
-            if (nextByte != Constants.Resp_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to set device programming parameters!");
-            logger.Info("Device initialized!");
+            if (nextByte != Constants.RESP_STK_OK)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    BootloaderProgrammerMessages.SET_DEVICE_PARAMS_FAILURE);
         }
 
         public override void EnableProgrammingMode()
         {
-            logger.Info("Enabling programming mode on the device...");
             SendWithSyncRetry(new EnableProgrammingModeRequest());
             var nextByte = ReceiveNext();
-            if (nextByte == Constants.Resp_STK_OK) return;
-            if (nextByte == Constants.Resp_STK_NODEVICE || nextByte == Constants.Resp_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to enable programming mode on the device!");
+            if (nextByte == Constants.RESP_STK_OK) return;
+            if (nextByte == Constants.RESP_STK_NODEVICE || nextByte == Constants.RESP_STK_Failed)
+                UploaderLogger.LogAndThrowError<IOException>(BootloaderProgrammerMessages.ENABLE_PROGMODE_FAILURE);
         }
 
         public override void ProgramDevice()
@@ -129,16 +166,20 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         private uint GetParameterValue(byte param)
         {
-            logger.Trace("Retrieving parameter '{0}'...", param);
+            logger.Trace(BootloaderProgrammerMessages.GET_PARAM, param);
             SendWithSyncRetry(new GetParameterRequest(param));
             var nextByte = ReceiveNext();
             var paramValue = (uint)nextByte;
             nextByte = ReceiveNext();
 
-            if (nextByte == Constants.Resp_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>(string.Format("Fetching parameter '{0}' failed!", param));
-            if (nextByte != Constants.Resp_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>(string.Format("Protocol error while retrieving parameter '{0}'", param));
+            if (nextByte == Constants.RESP_STK_Failed)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    string.Format(BootloaderProgrammerMessages.GET_PARAM_FAILED, param));
+
+            if (nextByte != Constants.RESP_STK_OK)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    string.Format(BootloaderProgrammerMessages.GET_PARAM_FAILED_PROTOCOL, param));
+
             return paramValue;
         }
 
@@ -154,7 +195,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 var bytesToCopy = MemoryBlock.Cells.Skip(addr).Take(pageSize).Select(x => x.Value).ToArray();
                 SendWithSyncRetry(new ExecutePagedWriteRequest(pageSize, blockSize, bytesToCopy));
                 var nextByte = ReceiveNext();
-                if (nextByte == Constants.Resp_STK_OK) return;
+                if (nextByte == Constants.RESP_STK_OK) return;
                 UploaderLogger.LogAndThrowError<IOException>(
                     string.Format("Write for address page from address {0} failed!", addr));
             }
@@ -164,7 +205,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         {
             SendWithSyncRetry(new LoadAddressRequest(addr));
             var result = ReceiveNext();
-            if (result == Constants.Resp_STK_OK) return;
+            if (result == Constants.RESP_STK_OK) return;
             UploaderLogger.LogAndThrowError<IOException>(string.Format("LoadAddress failed with result {0}!", result));
         }
     }

@@ -21,7 +21,7 @@ namespace ArduinoUploader
         private UploaderSerialPort serialPort;
 
         private const int UploadBaudRate = 115200;
-        private const int ReadTimeOut = 1000;
+        private const int SerialPortTimeOut = 1000;
 
         public ArduinoSketchUploader(ArduinoSketchUploaderOptions options)
         {
@@ -53,7 +53,7 @@ namespace ArduinoUploader
             logger.Trace("Creating serial port '{0}'...", serialPortName);
             serialPort = new UploaderSerialPort(serialPortName, UploadBaudRate);
 
-            var mcu = new ATMega2560(0, 0, 0, 0, 0, 0);
+            var mcu = new ATMega2560();
 
             var hexFileMemoryBlock = ReadHexFile(hexFileContents, mcu.FlashSize);
 
@@ -66,10 +66,23 @@ namespace ArduinoUploader
                 ConfigureSerialPort();
 
                 bootloaderProgrammer.Open();
+
+                logger.Info(BootloaderProgrammerMessages.ESTABLISH_SYNC);
                 bootloaderProgrammer.EstablishSync();
+                logger.Info(BootloaderProgrammerMessages.SYNC_ESTABLISHED);
+
+                logger.Info(BootloaderProgrammerMessages.CHECK_DEVICE_SIG);
                 bootloaderProgrammer.CheckDeviceSignature();
+                logger.Info(BootloaderProgrammerMessages.DEVICE_SIG_CHECKED);
+
+                logger.Info(BootloaderProgrammerMessages.INITIALIZE_DEVICE);
                 bootloaderProgrammer.InitializeDevice();
+                logger.Info(BootloaderProgrammerMessages.DEVICE_INITIALIZED);
+
+                logger.Info(BootloaderProgrammerMessages.ENABLE_PROGMODE);
                 bootloaderProgrammer.EnableProgrammingMode();
+                logger.Info(BootloaderProgrammerMessages.PROGMODE_ENABLED);
+
                 bootloaderProgrammer.ProgramDevice();
                 bootloaderProgrammer.Close();
             }
@@ -137,8 +150,9 @@ namespace ArduinoUploader
 
         private void ConfigureSerialPort()
         {
-            logger.Trace("Setting Read Timeout on serial port to '{0}'.", ReadTimeOut);
-            serialPort.ReadTimeout = ReadTimeOut;
+            logger.Trace("Setting Read/Write Timeout on serial port to '{0}'.", SerialPortTimeOut);
+            serialPort.ReadTimeout = SerialPortTimeOut;
+            serialPort.WriteTimeout = SerialPortTimeOut;
         }
 
         #endregion

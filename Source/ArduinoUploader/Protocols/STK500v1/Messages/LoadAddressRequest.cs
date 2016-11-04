@@ -6,10 +6,10 @@
         {
             Bytes = new[]
             {
-                Constants.Cmnd_STK_LOAD_ADDRESS,
+                Constants.CMD_STK_LOAD_ADDRESS,
                 (byte)(address & 0xff),
                 (byte)((address >> 8) & 0xff),
-                Constants.Sync_CRC_EOP
+                Constants.SYNC_CRC_EOP
             };
         }
     }
