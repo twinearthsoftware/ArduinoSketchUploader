@@ -6,6 +6,7 @@
         internal const byte CMD_STK_GET_PARAMETER               = 0x41;
         internal const byte CMD_STK_SET_DEVICE                  = 0x42;
         internal const byte CMD_STK_ENTER_PROGMODE              = 0x50;
+        internal const byte CMD_STK_LEAVE_PROGMODE              = 0x51;
         internal const byte CMD_STK_LOAD_ADDRESS                = 0x55;
         internal const byte CMD_STK_PROG_PAGE                   = 0x64;
         internal const byte CMD_STK_READ_PAGE                   = 0x74;

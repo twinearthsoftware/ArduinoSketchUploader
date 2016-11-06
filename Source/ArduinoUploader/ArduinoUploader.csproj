@@ -61,6 +61,7 @@
     <Compile Include="Protocols\STK500v1\Messages\ExecuteReadPageRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetParameterRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\GetSyncRequest.cs" />
+    <Compile Include="Protocols\STK500v1\Messages\LeaveProgrammingModeRequest.cs" />
     <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeRequest.cs" />
     <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeResponse.cs" />
     <Compile Include="Protocols\STK500v2\Messages\ExecuteProgramPageRequest.cs" />

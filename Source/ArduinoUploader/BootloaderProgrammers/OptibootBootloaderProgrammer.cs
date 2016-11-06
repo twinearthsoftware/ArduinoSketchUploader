@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
 using ArduinoUploader.Protocols;
@@ -50,26 +49,12 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected TResponse Receive<TResponse>(int length = 1) where TResponse : Response
         {
-            var bytes = new byte[length];
-            try
-            {
-                SerialPort.Read(bytes, 0, length);
-                logger.Trace(
-                    "Received {0} bytes: {1}{2}{3}{4}",
-                    length,
-                    Environment.NewLine, BitConverter.ToString(bytes),
-                    Environment.NewLine, string.Join("-", bytes.Select(x => " " + Convert.ToChar(x))));
-                var result = (TResponse) Activator.CreateInstance(typeof(TResponse));
-                result.Bytes = bytes;
-                return result;
-            }
-            catch (TimeoutException)
-            {
-                logger.Trace(
-                    "Timeout - no response received after {0}ms.", 
-                    SerialPort.ReadTimeout);
-                return null;
-            }
+            var bytes = ReceiveNext(length);
+            if (bytes == null) return null;
+
+            var result = (TResponse) Activator.CreateInstance(typeof(TResponse));
+            result.Bytes = bytes;
+            return result;
         }
 
         protected void SendWithSyncRetry(IRequest request)
@@ -139,7 +124,12 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void LeaveProgrammingMode()
         {
-            throw new NotImplementedException();
+            SendWithSyncRetry(new LeaveProgrammingModeRequest());
+            var nextByte = ReceiveNext();
+            if (nextByte == Constants.RESP_STK_OK) return;
+            if (nextByte == Constants.RESP_STK_NODEVICE || nextByte == Constants.RESP_STK_Failed)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    "Unable to leave programming mode on the device!");
         }
 
         private uint GetParameterValue(byte param)
