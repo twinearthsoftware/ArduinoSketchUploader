@@ -3,31 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Threading;
-using ArduinoUploader.ArduinoSTK500Protocol;
-using ArduinoUploader.ArduinoSTK500Protocol.CommandConstants;
-using ArduinoUploader.ArduinoSTK500Protocol.HardwareConstants;
-using ArduinoUploader.ArduinoSTK500Protocol.Messages;
+using ArduinoUploader.BootloaderProgrammers;
+using ArduinoUploader.Hardware;
 using IntelHexFormatReader;
 using IntelHexFormatReader.Model;
 using NLog;
 
 namespace ArduinoUploader
 {
-    /// <summary>
-    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino.
-    /// 
-    /// This code was heavily inspired by avrdude's STK500 implementation.
-    /// </summary>
     public class ArduinoSketchUploader
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly ArduinoSketchUploaderOptions options;
         private UploaderSerialPort serialPort;
-        private MemoryBlock hexFileMemoryBlock;
 
-        private const int UploadBaudRate = 115200;
-        private const int ReadTimeOut = 1000;
+        private const int SerialPortTimeOut = 1000;
 
         public ArduinoSketchUploader(ArduinoSketchUploaderOptions options)
         {
@@ -46,7 +36,6 @@ namespace ArduinoUploader
         public void UploadSketch(IEnumerable<string> hexFileContents)
         {
             var serialPortName = options.PortName;
-            hexFileMemoryBlock = ReadHexFile(hexFileContents);
 
             var ports = SerialPort.GetPortNames();
 
@@ -58,19 +47,61 @@ namespace ArduinoUploader
             }
 
             logger.Trace("Creating serial port '{0}'...", serialPortName);
-            serialPort = new UploaderSerialPort(serialPortName, UploadBaudRate);
+            SerialPortBootloaderProgrammer programmer = null;
 
+            IMCU mcu = null;
+
+            switch (options.ArduinoModel)
+            {
+                case ArduinoModel.UnoR3:
+                {
+                    mcu = new ATMega328P();
+                    serialPort = new UploaderSerialPort(serialPortName, 115200);
+                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
+                    break;
+                }
+                case ArduinoModel.Mega2560:
+                {
+                    mcu = new ATMega2560();
+                    serialPort = new UploaderSerialPort(serialPortName, 115200);
+                    programmer = new WiringBootloaderProgrammer(serialPort, mcu);
+                    break;
+                }
+                default:
+                {
+                    UploaderLogger.LogAndThrowError<IOException>(
+                        string.Format("Unsupported model: {0}!", options.ArduinoModel));
+                    break;
+                }
+            }
             try
             {
                 TryToOpenSerialPort();
                 ConfigureSerialPort();
-                ResetArduino();
-                EstablishSync();
-                CheckDeviceSignature();
-                InitializeDevice();
-                EnableProgrammingMode();
-                ProgramDevice();
-                ResetArduino();
+
+                programmer.Open();
+
+                logger.Info("Establishing sync...");
+                programmer.EstablishSync();
+                logger.Info("Sync established.");
+
+                logger.Info("Checking device signature...");
+                programmer.CheckDeviceSignature();
+                logger.Info("Device signature checked.");
+
+                logger.Info("Initializing device...");
+                programmer.InitializeDevice();
+                logger.Info("Device initialized.");
+
+                logger.Info("Enabling programming mode on the device...");
+                programmer.EnableProgrammingMode();
+                logger.Info("Programming mode enabled.");
+
+                logger.Info("Programming device...");
+                programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size));
+                logger.Info("Device programmed.");
+
+                programmer.Close();
             }
             finally
             {
@@ -81,11 +112,11 @@ namespace ArduinoUploader
 
         #region Private Methods
 
-        private static MemoryBlock ReadHexFile(IEnumerable<string> hexFileContents)
+        private static MemoryBlock ReadHexFile(IEnumerable<string> hexFileContents, int memorySize)
         {
             try
             {
-                var reader = new HexFileReader(hexFileContents, ATMega328Constants.ATMEGA328_FLASH_SIZE);
+                var reader = new HexFileReader(hexFileContents, memorySize);
                 return reader.Parse();
             }
             catch (Exception ex)
@@ -136,142 +167,9 @@ namespace ArduinoUploader
 
         private void ConfigureSerialPort()
         {
-            logger.Trace("Setting Read Timeout on serial port to '{0}'.", ReadTimeOut);
-            serialPort.ReadTimeout = ReadTimeOut;
-        }
-
-        private void EstablishSync()
-        {
-            logger.Info("Trying to establish sync...");
-            serialPort.EstablishSync();
-            logger.Info("Sync established!");
-        }
-
-        private void ResetArduino()
-        {
-            logger.Info("Resetting Arduino...");
-            serialPort.DtrEnable = false;
-            serialPort.RtsEnable = false;
-
-            Thread.Sleep(250);
-
-            serialPort.DtrEnable = true;
-            serialPort.RtsEnable = true;
-
-            Thread.Sleep(50);
-        }
-
-        private void InitializeDevice()
-        {
-            logger.Info("Initializing device!");
-            var majorVersion = GetParameterValue(CommandConstants.Parm_STK_SW_MAJOR);
-            var minorVersion = GetParameterValue(CommandConstants.Parm_STK_SW_MINOR);
-            logger.Info("Retrieved software version: {0}.{1}.", majorVersion, minorVersion);
-
-            logger.Info("Setting device programming parameters...");
-            serialPort.SendWithSyncRetry(new SetDeviceProgrammingParametersRequest());
-            var nextByte = serialPort.ReceiveNext();
-
-            if (nextByte != CommandConstants.Resp_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to set device programming parameters!");
-            logger.Info("Device initialized!");
-        }
-
-        private void EnableProgrammingMode()
-        {
-            logger.Info("Enabling programming mode on the device...");
-            serialPort.SendWithSyncRetry(new EnableProgrammingModeRequest());
-            var nextByte = serialPort.ReceiveNext();
-            if (nextByte == CommandConstants.Resp_STK_OK) return;
-            if (nextByte == CommandConstants.Resp_STK_NODEVICE || nextByte == CommandConstants.Resp_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to enable programming mode on the device!");
-        }
-
-        private uint GetParameterValue(byte param)
-        {
-            logger.Trace("Retrieving parameter '{0}'...", param);
-            serialPort.SendWithSyncRetry(new GetParameterRequest(param));
-            var nextByte = serialPort.ReceiveNext();
-            var paramValue = (uint)nextByte;
-            nextByte = serialPort.ReceiveNext();
-
-            if (nextByte == CommandConstants.Resp_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>(string.Format("Fetching parameter '{0}' failed!", param));
-            if (nextByte != CommandConstants.Resp_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>(string.Format("Protocol error while retrieving parameter '{0}'", param));
-            return paramValue;
-        }
-
-        private void CheckDeviceSignature()
-        {
-            logger.Info("Checking device signature...");
-            logger.Debug("Expecting to find 0x1e 0x95 0x0f...");
-            serialPort.SendWithSyncRetry(new ReadSignatureRequest());
-            var response = serialPort.Receive<ReadSignatureResponse>(4);
-            if (response == null || !response.IsCorrectResponse)
-                UploaderLogger.LogAndThrowError<IOException>("Unable to check device signature!");
-            // ReSharper disable once PossibleNullReferenceException
-            var signature = response.Signature;
-            if (signature[0] != 0x1e || signature[1] != 0x95 || signature[2] != 0x0f)
-                UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format("Signature {0} {1} {2} was different than what was expected!", 
-                        signature[0], signature[1], signature[2]));
-        }
-
-        private void ProgramDevice()
-        {
-            var sizeToWrite = hexFileMemoryBlock.HighestModifiedOffset + 1;
-            const byte pageSize = ATMega328Constants.ATMEGA328_FLASH_PAGESIZE;
-            logger.Info("Preparing to write {0} bytes...", sizeToWrite);
-            logger.Info("Flash memory page size: {0}.", pageSize);
-
-            int pageaddr;
-            for (pageaddr = 0; pageaddr < sizeToWrite; pageaddr += pageSize)
-            {
-                var needsWrite = false;
-                for (var i = pageaddr; i < pageaddr + pageSize; i++)
-                {
-                    if (!hexFileMemoryBlock.Cells[i].Modified) continue;
-                    needsWrite = true;
-                    break;
-                }
-                if (needsWrite)
-                {
-                    logger.Trace("Executing paged write from address {0} (page size {1})...", pageaddr, pageSize);
-                    ExecutePagedWrite(pageaddr, pageSize);
-                }
-                else
-                {
-                    logger.Trace("Skip writing page...");
-                }
-            }
-            logger.Info("{0} bytes written to flash memory!", sizeToWrite);
-        }
-
-        private void ExecutePagedWrite(int addr, int pageSize)
-        {
-            int blockSize;
-            var n = addr + pageSize;
-
-            for (; addr < n; addr += blockSize)
-            {
-                blockSize = n - addr < pageSize ? n - addr : pageSize;
-                LoadAddress((uint)Math.Truncate(addr / (double)2));
-                var bytesToCopy = hexFileMemoryBlock.Cells.Skip(addr).Take(pageSize).Select(x => x.Value).ToArray();
-                serialPort.SendWithSyncRetry(new ExecutePagedWriteRequest(pageSize, blockSize, bytesToCopy));
-                var nextByte = serialPort.ReceiveNext();
-                if (nextByte == CommandConstants.Resp_STK_OK) return;
-                UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format("Write for address page from address {0} failed!", addr));
-            }
-        }
-
-        private void LoadAddress(uint addr)
-        {
-            serialPort.SendWithSyncRetry(new LoadAddressRequest(addr));
-            var result = serialPort.ReceiveNext();
-            if (result == CommandConstants.Resp_STK_OK) return;
-            UploaderLogger.LogAndThrowError<IOException>(string.Format("LoadAddress failed with result {0}!", result));
+            logger.Trace("Setting Read/Write Timeout on serial port to '{0}'.", SerialPortTimeOut);
+            serialPort.ReadTimeout = SerialPortTimeOut;
+            serialPort.WriteTimeout = SerialPortTimeOut;
         }
 
         #endregion

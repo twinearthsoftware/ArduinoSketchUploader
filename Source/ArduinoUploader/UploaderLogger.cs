@@ -10,7 +10,7 @@ namespace ArduinoUploader
         internal static void LogAndThrowError<TException>(string errorMessage) where TException : Exception, new()
         {
             logger.Error(errorMessage);
-            var exception = (TException)Activator.CreateInstance(typeof(TException), errorMessage);
+            var exception = (TException) Activator.CreateInstance(typeof(TException), errorMessage);
             throw exception;
         }
     }
