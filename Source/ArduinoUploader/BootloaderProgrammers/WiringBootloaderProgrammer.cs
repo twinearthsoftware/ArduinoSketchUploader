@@ -45,7 +45,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
         }
 
-        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
             : base(serialPort, mcu)
         {
         }
@@ -239,8 +239,8 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)
         {
-            LoadAddress(memory, offset / 2);
-            logger.Info(
+            LoadAddress(memory, offset);
+            logger.Trace(
                 "Sending execute write page request for offset {0} ({1} bytes)...", 
                 offset, bytes.Length);
 
@@ -259,7 +259,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override byte[] ExecuteReadPage(IMemory memory, int offset)
         {
-            LoadAddress(memory, offset / 2);
+            LoadAddress(memory, offset);
             logger.Trace("Sending execute read page request (offset {0})...", offset);
             var readCmd = readCommands[memory.Type];
 
@@ -280,6 +280,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         private void LoadAddress(IMemory memory, int addr)
         {
             logger.Trace("Sending load address request: {0}.", addr);
+            addr = addr >> 1;
             Send(new LoadAddressRequest(memory, addr));
             var response = Receive<LoadAddressResponse>();
             if (response == null || !response.Succeeded)

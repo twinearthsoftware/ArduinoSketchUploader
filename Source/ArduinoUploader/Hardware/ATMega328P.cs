@@ -3,7 +3,7 @@ using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
-    internal class ATMega328P : ATMegaMCU
+    internal class ATMega328P : MCU
     {
         public override byte DeviceCode { get { return 0x86; } }
         public override byte DeviceRevision { get { return 0; } }

@@ -15,7 +15,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const string EXPECTED_DEVICE_SIGNATURE = "1e-95-0f";
 
-        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
             : base(serialPort, mcu)
         {
         }
@@ -119,7 +119,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 string.Format("{0}.{1}", majorVersion, minorVersion));
 
             logger.Info("Setting device programming parameters...");
-            SendWithSyncRetry(new SetDeviceProgrammingParametersRequest((ATMegaMCU)MCU));
+            SendWithSyncRetry(new SetDeviceProgrammingParametersRequest((MCU)MCU));
             var nextByte = ReceiveNext();
 
             if (nextByte != Constants.RESP_STK_OK)
@@ -160,7 +160,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)
         {
-            LoadAddress((uint)Math.Truncate(offset / (double)2));
+            LoadAddress(offset);
             SendWithSyncRetry(new ExecuteProgramPageRequest(memory, bytes));
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
@@ -171,7 +171,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         public override byte[] ExecuteReadPage(IMemory memory, int offset)
         {
             var pageSize = memory.PageSize;
-            LoadAddress((uint) Math.Truncate(offset/(double) 2));
+            LoadAddress(offset);
             SendWithSyncRetry(new ExecuteReadPageRequest(memory.Type, pageSize));
             var bytes = ReceiveNext(pageSize);
             if (bytes == null)
@@ -187,9 +187,10 @@ namespace ArduinoUploader.BootloaderProgrammers
             return null;
         }
 
-        private void LoadAddress(uint addr)
+        private void LoadAddress(int addr)
         {
             logger.Trace("Sending load address request: {0}.", addr);
+            addr = addr >> 1;
             SendWithSyncRetry(new LoadAddressRequest(addr));
             var result = ReceiveNext();
             if (result == Constants.RESP_STK_OK) return;

@@ -47,11 +47,11 @@
     <Compile Include="BootloaderProgrammers\BootloaderProgrammer.cs" />
     <Compile Include="Hardware\ATMega2560.cs" />
     <Compile Include="Hardware\ATMega328P.cs" />
-    <Compile Include="Hardware\ATMegaMCU.cs" />
+    <Compile Include="Hardware\MCU.cs" />
     <Compile Include="Hardware\Command.cs" />
     <Compile Include="Hardware\Memory\EEPROMMemory.cs" />
     <Compile Include="Hardware\Memory\FlashMemory.cs" />
-    <Compile Include="Hardware\MCU.cs" />
+    <Compile Include="Hardware\IMCU.cs" />
     <Compile Include="Hardware\Memory\IMemory.cs" />
     <Compile Include="Hardware\Memory\Memory.cs" />
     <Compile Include="Hardware\Memory\MemoryType.cs" />

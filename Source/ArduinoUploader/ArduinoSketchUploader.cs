@@ -49,7 +49,7 @@ namespace ArduinoUploader
             logger.Trace("Creating serial port '{0}'...", serialPortName);
             SerialPortBootloaderProgrammer programmer = null;
 
-            MCU mcu = null;
+            IMCU mcu = null;
 
             switch (options.ArduinoModel)
             {

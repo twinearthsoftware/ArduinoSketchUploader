@@ -11,9 +11,9 @@ namespace ArduinoUploader.BootloaderProgrammers
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        protected MCU MCU { get; private set; }
+        protected IMCU MCU { get; private set; }
 
-        protected BootloaderProgrammer(MCU mcu)
+        protected BootloaderProgrammer(IMCU mcu)
         {
             MCU = mcu;
         }

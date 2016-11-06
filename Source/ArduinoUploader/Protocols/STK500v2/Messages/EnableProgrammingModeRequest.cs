@@ -4,7 +4,7 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class EnableProgrammingModeRequest : Request
     {
-        public EnableProgrammingModeRequest(MCU mcu)
+        public EnableProgrammingModeRequest(IMCU mcu)
         {
             var cmdBytes = mcu.CommandBytes[Command.PGM_ENABLE];
             Bytes = new[]

@@ -1,33 +1,41 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
-    internal interface MCU
+    internal abstract class MCU : IMCU
     {
-        byte DeviceCode { get; }
-        byte DeviceRevision { get; }
-        byte ProgType { get; }
-        byte ParallelMode { get; }
-        byte Polling { get; }
-        byte SelfTimed { get; }
-        byte LockBytes { get; }
-        byte FuseBytes { get; }
+        public abstract byte DeviceCode { get; }
+        public abstract byte DeviceRevision { get; }
+        public abstract byte LockBytes { get; }
+        public abstract byte FuseBytes { get; }
 
-        byte Timeout { get; }
-        byte StabDelay { get; }
-        byte CmdExeDelay { get; }
-        byte SynchLoops { get; }
-        byte ByteDelay { get; }
-        byte PollValue { get; }
-        byte PollIndex { get; }
+        public abstract byte Timeout { get; }
+        public abstract byte StabDelay { get; }
+        public abstract byte CmdExeDelay { get; }
+        public abstract byte SynchLoops { get; }
+        public abstract byte ByteDelay { get; }
+        public abstract byte PollValue { get; }
+        public abstract byte PollIndex { get; }
 
-        IDictionary<Command,byte[]> CommandBytes { get; }
+        public virtual byte ProgType { get { return 0; } }
+        public virtual byte ParallelMode { get { return 0; } }
+        public virtual byte Polling { get { return 1; } }
+        public virtual byte SelfTimed { get { return 1; } }
 
-        IMemory Flash { get; }
-        IMemory EEPROM { get; }
+        public abstract IDictionary<Command, byte[]> CommandBytes { get; }
 
-        IList<IMemory> Memory { get; }
+        public IMemory Flash
+        {
+            get { return Memory.SingleOrDefault(x => x.Type == MemoryType.FLASH); }
+        }
 
+        public IMemory EEPROM
+        {
+            get { return Memory.SingleOrDefault(x => x.Type == MemoryType.EEPROM); }
+        }
+
+        public abstract IList<IMemory> Memory { get; }
     }
 }

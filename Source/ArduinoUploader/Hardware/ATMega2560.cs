@@ -3,7 +3,7 @@ using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
-    internal class ATMega2560 : ATMegaMCU
+    internal class ATMega2560 : MCU
     {
         public override byte DeviceCode { get { return 0xb2; } }
         public override byte DeviceRevision { get { return 0; } }

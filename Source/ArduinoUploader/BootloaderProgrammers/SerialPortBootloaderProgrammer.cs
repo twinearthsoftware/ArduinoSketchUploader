@@ -12,7 +12,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected UploaderSerialPort SerialPort { get; private set; }
 
-        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
             : base(mcu)
         {
             SerialPort = serialPort;
