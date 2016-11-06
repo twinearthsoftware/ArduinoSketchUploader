@@ -1,4 +1,5 @@
-﻿using ArduinoUploader.Hardware;
+﻿using ArduinoUploader.Hardware.Memory;
+using IntelHexFormatReader.Model;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
@@ -10,8 +11,8 @@ namespace ArduinoUploader.BootloaderProgrammers
         void CheckDeviceSignature();
         void InitializeDevice();
         void EnableProgrammingMode();
-        void ProgramDevice();
-        void ExecuteWritePage(MemoryType memType, int offset, byte[] bytes);
-        byte[] ExecuteReadPage(MemoryType memType, int offset, int pageSize);
+        void ProgramDevice(MemoryBlock memoryBlock);
+        void ExecuteWritePage(IMemory memory, int offset, byte[] bytes);
+        byte[] ExecuteReadPage(IMemory memory, int offset);
     }
 }

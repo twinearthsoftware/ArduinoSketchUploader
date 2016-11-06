@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ArduinoUploader.Hardware;
+using ArduinoUploader.Hardware.Memory;
 using ArduinoUploader.Protocols;
 using ArduinoUploader.Protocols.STK500v2;
 using ArduinoUploader.Protocols.STK500v2.Messages;
-using IntelHexFormatReader.Model;
 using NLog;
 using EnableProgrammingModeRequest = ArduinoUploader.Protocols.STK500v2.Messages.EnableProgrammingModeRequest;
 using GetParameterRequest = ArduinoUploader.Protocols.STK500v2.Messages.GetParameterRequest;
@@ -20,6 +21,18 @@ namespace ArduinoUploader.BootloaderProgrammers
         private const string EXPECTED_DEVICE_SIGNATURE = "AVRISP_2";
         private const string STK500v2_CORRUPT_WRAPPER = "STK500V2 wrapper corrupted ({0})!";
 
+        private readonly IDictionary<MemoryType, byte> readCommands = new Dictionary<MemoryType, byte>()
+        {
+            { MemoryType.FLASH, Constants.CMD_READ_FLASH_ISP },
+            { MemoryType.EEPROM, Constants.CMD_READ_EEPROM_ISP }
+        };
+
+        private readonly IDictionary<MemoryType, byte> writeCommands = new Dictionary<MemoryType, byte>()
+        {
+            { MemoryType.FLASH, Constants.CMD_PROGRAM_FLASH_ISP },
+            { MemoryType.EEPROM, Constants.CMD_PROGRAM_EEPROM_ISP }
+        };
+
         private string deviceSignature;
         private static byte sequenceNumber;
         protected static byte LastCommandSequenceNumber;
@@ -32,8 +45,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
         }
 
-        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, Func<int, MemoryBlock> memoryBlockGenerator)
-            : base(serialPort, mcu, memoryBlockGenerator)
+        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+            : base(serialPort, mcu)
         {
         }
 
@@ -44,7 +57,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected override void Send(IRequest request)
         {
-            var requestBodyLength = (byte) request.Bytes.Length;
+            var requestBodyLength = request.Bytes.Length;
             var totalMessageLength = requestBodyLength + 6;
             var wrappedBytes = new byte[totalMessageLength];
             wrappedBytes[0] = Constants.MESSAGE_START;
@@ -66,7 +79,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         {
             var response = (TResponse) Activator.CreateInstance(typeof(TResponse));
 
-            var wrappedResponseBytes = new byte[32];
+            var wrappedResponseBytes = new byte[300];
             var messageStart = ReceiveNext();
             if (messageStart != Constants.MESSAGE_START)
             {
@@ -76,6 +89,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 return null;                
             }
             wrappedResponseBytes[0] = (byte) messageStart;
+            logger.Trace("Received MESSAGE_START.");
 
             var seqNumber = ReceiveNext();
             if (seqNumber != LastCommandSequenceNumber)
@@ -86,6 +100,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 return null;                      
             }
             wrappedResponseBytes[1] = sequenceNumber;
+            logger.Trace("Received sequence number.");
 
             var messageSizeHighByte = ReceiveNext();
             if (messageSizeHighByte == -1)
@@ -108,6 +123,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             wrappedResponseBytes[3] = (byte) messageSizeLowByte;
 
             var messageSize = (messageSizeHighByte << 8) + messageSizeLowByte;
+            logger.Trace("Received message size: {0}.", messageSize);
 
             var token = ReceiveNext();
             if (token != Constants.TOKEN)
@@ -119,16 +135,23 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
             wrappedResponseBytes[4] = (byte) token;
 
+            logger.Trace("Received TOKEN.");
+
             var payload = new byte[messageSize];
+            var retrieved = 0;
             try
             {
-                SerialPort.Read(payload, 0, messageSize);
+                retrieved = SerialPort.Read(payload, 0, messageSize);
+                logger.Trace(
+                    "Retrieved {0} bytes: {1}",
+                    retrieved,
+                    BitConverter.ToString(payload));
             }
             catch (TimeoutException)
             {
                 payload = null;
             }
-            if (payload == null)
+            if (payload == null || retrieved < messageSize)
             {
                 logger.Warn(
                    STK500v2_CORRUPT_WRAPPER,
@@ -214,35 +237,50 @@ namespace ArduinoUploader.BootloaderProgrammers
                     "Unable to enable programming mode on the device!");
         }
 
-        public override void ExecuteWritePage(MemoryType memType, int offset, byte[] bytes)
+        public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)
         {
-            throw new NotImplementedException();
+            LoadAddress(memory, offset / 2);
+            logger.Info(
+                "Sending execute write page request for offset {0} ({1} bytes)...", 
+                offset, bytes.Length);
+
+            var writeCmd = writeCommands[memory.Type];
+
+            Send(new ExecuteProgramPageRequest(writeCmd, memory, bytes));
+            var response = Receive<ExecuteProgramPageResponse>();
+            if (response == null || response.AnswerID != writeCmd
+                || response.Status != Constants.STATUS_CMD_OK)
+            {
+                UploaderLogger.LogAndThrowError<IOException>(
+                    string.Format(
+                        "Executing write page request at offset {0} failed!", offset));
+            }
         }
 
-        public override byte[] ExecuteReadPage(MemoryType memType, int offset, int pageSize)
+        public override byte[] ExecuteReadPage(IMemory memory, int offset)
         {
-            LoadAddress(offset);
-            Send(new ExecuteReadPageRequest(memType, offset));
+            LoadAddress(memory, offset / 2);
+            logger.Trace("Sending execute read page request (offset {0})...", offset);
+            var readCmd = readCommands[memory.Type];
+
+            Send(new ExecuteReadPageRequest(readCmd, memory));
             var response = Receive<ExecuteReadPageResponse>();
-            //SendWithSyncRetry(new ExecuteReadPageRequest(memType, pageSize));
-            //var bytes = ReceiveNext(pageSize);
-            //if (bytes == null)
-            //{
-            //    UploaderLogger.LogAndThrowError<IOException>(
-            //        string.Format("Read at offset {0} failed!", offset));
-            //}
-
-            //var nextByte = ReceiveNext();
-            //if (nextByte == Constants.RESP_STK_OK) return bytes;
-            //UploaderLogger.LogAndThrowError<IOException>(
-            //    string.Format("Read at offset {0} failed!", offset));
-            return null;
+            if (response == null || response.AnswerID != readCmd
+                || response.Status != Constants.STATUS_CMD_OK)
+            {
+                UploaderLogger.LogAndThrowError<IOException>(
+                    string.Format(
+                        "Executing read page request at offset {0} failed!", offset));
+            }
+            var responseBytes = new byte[memory.PageSize];
+            Buffer.BlockCopy(response.Bytes, 2, responseBytes, 0, responseBytes.Length);
+            return responseBytes;
         }
 
-        private void LoadAddress(int addr)
+        private void LoadAddress(IMemory memory, int addr)
         {
             logger.Trace("Sending load address request: {0}.", addr);
-            Send(new LoadAddressRequest(addr | 1 << 31));
+            Send(new LoadAddressRequest(memory, addr));
             var response = Receive<LoadAddressResponse>();
             if (response == null || !response.Succeeded)
                 UploaderLogger.LogAndThrowError<IOException>(

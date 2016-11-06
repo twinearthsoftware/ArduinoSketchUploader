@@ -1,15 +1,10 @@
 ﻿using System.Collections.Generic;
+using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
     internal interface MCU
     {
-        int FlashSize { get; }
-        int FlashPageSize { get; }
-        int EEPROMSize { get; }
-
-        #region Programming
-
         byte DeviceCode { get; }
         byte DeviceRevision { get; }
         byte ProgType { get; }
@@ -18,10 +13,6 @@ namespace ArduinoUploader.Hardware
         byte SelfTimed { get; }
         byte LockBytes { get; }
         byte FuseBytes { get; }
-        byte FlashPollVal1 { get; }
-        byte FlashPollVal2 { get; }
-        byte EEPROMPollVal1 { get; }
-        byte EEPROMPollVal2 { get; }
 
         byte Timeout { get; }
         byte StabDelay { get; }
@@ -33,6 +24,10 @@ namespace ArduinoUploader.Hardware
 
         IDictionary<Command,byte[]> CommandBytes { get; }
 
-        #endregion
+        IMemory Flash { get; }
+        IMemory EEPROM { get; }
+
+        IList<IMemory> Memory { get; }
+
     }
 }

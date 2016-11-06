@@ -1,21 +1,14 @@
 ﻿using System.Collections.Generic;
+using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
     internal class ATMega2560 : ATMegaMCU
     {
-        public override int FlashSize { get { return 256 * 1024; } }
-        public override int FlashPageSize { get { return 0x100; } }
-        public override int EEPROMSize { get { return 4 * 1024; } }
-
         public override byte DeviceCode { get { return 0xb2; } }
         public override byte DeviceRevision { get { return 0; } }
         public override byte LockBytes { get { return 1; } }
         public override byte FuseBytes { get { return 3; } }
-        public override byte FlashPollVal1 { get { return 0x00; } }
-        public override byte FlashPollVal2 { get { return 0x00; } }
-        public override byte EEPROMPollVal1 { get { return 0x00; } }
-        public override byte EEPROMPollVal2 { get { return 0x00; } }
 
         public override byte Timeout { get { return 200; } }
         public override byte StabDelay { get { return 100; } }
@@ -31,8 +24,37 @@ namespace ArduinoUploader.Hardware
             {
                 return new Dictionary<Command, byte[]>
                 {
-                    { Command.PGM_ENABLE, new byte[] {0xac, 0x53, 0x00, 0x00} }
+                    { Command.PGM_ENABLE, new byte[] { 0xac, 0x53, 0x00, 0x00 } }
                 };
+            }
+        }
+
+        public override IList<IMemory> Memory
+        {
+            get 
+            { 
+                return new List<IMemory>()
+                {
+                    new FlashMemory()
+                    {
+                        Size = 256 * 1024,
+                        PageSize = 256,
+                        PollVal1 = 0x00,
+                        PollVal2 = 0x00,
+                        Delay = 10,
+                        CmdBytesRead = new byte[] { 0x20, 0x00, 0x00 },
+                        CmdBytesWrite = new byte[] { 0x40, 0x4c, 0x00 }
+                    },
+                    new EEPROMMemory()
+                    {
+                        Size = 4 * 1024,
+                        PollVal1 = 0x00,
+                        PollVal2 = 0x00,
+                        Delay = 10,
+                        CmdBytesRead = new byte[] { 0xa0, 0x00, 0x00 },
+                        CmdBytesWrite = new byte[] { 0xc1, 0xc2, 0x00 }
+                    }
+                }; 
             }
         }
     }

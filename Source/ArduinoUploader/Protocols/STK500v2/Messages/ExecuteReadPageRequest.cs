@@ -1,16 +1,19 @@
-﻿using ArduinoUploader.Hardware;
+﻿using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class ExecuteReadPageRequest : Request
     {
-        public ExecuteReadPageRequest(MemoryType memType, int pageSize)
+        public ExecuteReadPageRequest(byte readCmd, IMemory memory)
         {
+            var pageSize = memory.PageSize;
+            var cmdByte = memory.CmdBytesRead[0];
             Bytes = new[]
             {
-                memType == MemoryType.FLASH ? Constants.CMD_READ_FLASH_PP : Constants.CMD_READ_EEPROM_PP,
-                (byte)((pageSize >> 8) & 0xff),
-                (byte)(pageSize & 0xff)
+                readCmd,
+                (byte)(pageSize >> 8),
+                (byte)(pageSize & 0xff),
+                cmdByte
             };
         }
     }

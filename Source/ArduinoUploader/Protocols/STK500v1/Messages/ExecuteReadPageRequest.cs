@@ -1,4 +1,4 @@
-﻿using ArduinoUploader.Hardware;
+﻿using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Protocols.STK500v1.Messages
 {

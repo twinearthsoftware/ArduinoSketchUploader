@@ -2,10 +2,10 @@
 using System.IO;
 using System.Linq;
 using ArduinoUploader.Hardware;
+using ArduinoUploader.Hardware.Memory;
 using ArduinoUploader.Protocols;
 using ArduinoUploader.Protocols.STK500v1;
 using ArduinoUploader.Protocols.STK500v1.Messages;
-using IntelHexFormatReader.Model;
 using NLog;
 
 namespace ArduinoUploader.BootloaderProgrammers
@@ -15,8 +15,8 @@ namespace ArduinoUploader.BootloaderProgrammers
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const string EXPECTED_DEVICE_SIGNATURE = "1e-95-0f";
 
-        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, Func<int,MemoryBlock> memoryBlockGenerator)
-            : base(serialPort, mcu, memoryBlockGenerator)
+        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+            : base(serialPort, mcu)
         {
         }
 
@@ -158,20 +158,21 @@ namespace ArduinoUploader.BootloaderProgrammers
             return paramValue;
         }
 
-        public override void ExecuteWritePage(MemoryType memType, int offset, byte[] bytes)
+        public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)
         {
             LoadAddress((uint)Math.Truncate(offset / (double)2));
-            SendWithSyncRetry(new ExecuteProgramPageRequest(memType, bytes));
+            SendWithSyncRetry(new ExecuteProgramPageRequest(memory, bytes));
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
             UploaderLogger.LogAndThrowError<IOException>(
                 string.Format("Write at offset {0} failed!", offset));
         }
 
-        public override byte[] ExecuteReadPage(MemoryType memType, int offset, int pageSize)
+        public override byte[] ExecuteReadPage(IMemory memory, int offset)
         {
+            var pageSize = memory.PageSize;
             LoadAddress((uint) Math.Truncate(offset/(double) 2));
-            SendWithSyncRetry(new ExecuteReadPageRequest(memType, pageSize));
+            SendWithSyncRetry(new ExecuteReadPageRequest(memory.Type, pageSize));
             var bytes = ReceiveNext(pageSize);
             if (bytes == null)
             {

@@ -1,19 +1,15 @@
-﻿using System;
-using ArduinoUploader.Hardware;
-using IntelHexFormatReader.Model;
-using NLog;
+﻿using ArduinoUploader.Hardware;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
     internal abstract class ArduinoBootloaderProgrammer : SerialPortBootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         protected int MaxSyncRetries { get { return 20; } }
 
         protected abstract void Reset();
 
-        protected ArduinoBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, Func<int, MemoryBlock> memoryBlockGenerator)
-            : base(serialPort, mcu, memoryBlockGenerator)
+        protected ArduinoBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+            : base(serialPort, mcu)
         {
         }
 

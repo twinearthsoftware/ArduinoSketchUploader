@@ -6,9 +6,11 @@ namespace ArduinoUploader.Protocols.STK500v1.Messages
     {
         public SetDeviceProgrammingParametersRequest(MCU mcu)
         {
-            var flashPageSize = mcu.FlashPageSize;
-            var epromSize = mcu.EEPROMSize;
-            var flashSize = mcu.FlashSize;
+            var flashMem = mcu.Flash;
+            var eepromMem = mcu.EEPROM;
+            var flashPageSize = flashMem.PageSize;
+            var flashSize = flashMem.Size;
+            var epromSize = eepromMem.Size;
 
             Bytes = new byte[22];
             Bytes[0] = Constants.CMD_STK_SET_DEVICE;
@@ -20,10 +22,10 @@ namespace ArduinoUploader.Protocols.STK500v1.Messages
             Bytes[6] = mcu.SelfTimed; 
             Bytes[7] = mcu.LockBytes;
             Bytes[8] = mcu.FuseBytes;
-            Bytes[9] = mcu.FlashPollVal1; 
-            Bytes[10] = mcu.FlashPollVal2; 
-            Bytes[11] = mcu.EEPROMPollVal1;
-            Bytes[12] = mcu.EEPROMPollVal2;
+            Bytes[9] = flashMem.PollVal1; 
+            Bytes[10] = flashMem.PollVal2; 
+            Bytes[11] = eepromMem.PollVal1;
+            Bytes[12] = eepromMem.PollVal2;
             Bytes[13] = (byte) ((flashPageSize >> 8) & 0x00ff);
             Bytes[14] = (byte) (flashPageSize & 0x00ff);
             Bytes[15] = (byte) ((epromSize >> 8) & 0x00ff);

@@ -2,6 +2,8 @@
 {
     internal enum Command
     {
-        PGM_ENABLE
+        PGM_ENABLE,
+        READ_FLASH,
+        READ_EEPROM
     }
 }

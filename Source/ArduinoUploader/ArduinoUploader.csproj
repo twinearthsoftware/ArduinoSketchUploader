@@ -49,8 +49,12 @@
     <Compile Include="Hardware\ATMega328P.cs" />
     <Compile Include="Hardware\ATMegaMCU.cs" />
     <Compile Include="Hardware\Command.cs" />
+    <Compile Include="Hardware\Memory\EEPROMMemory.cs" />
+    <Compile Include="Hardware\Memory\FlashMemory.cs" />
     <Compile Include="Hardware\MCU.cs" />
-    <Compile Include="Hardware\MemoryType.cs" />
+    <Compile Include="Hardware\Memory\IMemory.cs" />
+    <Compile Include="Hardware\Memory\Memory.cs" />
+    <Compile Include="Hardware\Memory\MemoryType.cs" />
     <Compile Include="Protocols\STK500v1\Constants.cs" />
     <Compile Include="Protocols\STK500v1\Messages\EnableProgrammingModeRequest.cs" />
     <Compile Include="Protocols\STK500v1\Messages\ExecuteProgramPageRequest.cs" />
@@ -59,6 +63,8 @@
     <Compile Include="Protocols\STK500v1\Messages\GetSyncRequest.cs" />
     <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeRequest.cs" />
     <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeResponse.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\ExecuteProgramPageRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\ExecuteProgramPageResponse.cs" />
     <Compile Include="Protocols\STK500v2\Messages\ExecuteReadPageResponse.cs" />
     <Compile Include="Protocols\STK500v2\Messages\ExecuteReadPageRequest.cs" />
     <Compile Include="Protocols\STK500v2\Messages\GetParameterRequest.cs" />

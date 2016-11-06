@@ -3,11 +3,13 @@
     internal static class Constants
     {
         internal const byte CMD_SIGN_ON                         = 0x01;
-        internal const byte CMD_LOAD_ADDRESS                    = 0x02;
         internal const byte CMD_GET_PARAMETER                   = 0x03;
+        internal const byte CMD_LOAD_ADDRESS                    = 0x06;
         internal const byte CMD_ENTER_PROGRMODE_ISP             = 0x10;
-        internal const byte CMD_READ_FLASH_PP                   = 0x24;
-        internal const byte CMD_READ_EEPROM_PP                  = 0x26;
+        internal const byte CMD_PROGRAM_FLASH_ISP               = 0x13;
+        internal const byte CMD_READ_FLASH_ISP                  = 0x14;
+        internal const byte CMD_PROGRAM_EEPROM_ISP              = 0x15;
+        internal const byte CMD_READ_EEPROM_ISP                 = 0x16;
 
         internal const byte STATUS_CMD_OK                       = 0x00;
 

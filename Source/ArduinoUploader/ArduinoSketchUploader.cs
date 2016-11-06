@@ -50,7 +50,6 @@ namespace ArduinoUploader
             SerialPortBootloaderProgrammer programmer = null;
 
             MCU mcu = null;
-            Func<int, MemoryBlock> memoryBlockGenerator = (memorySize) => ReadHexFile(hexFileContents, memorySize);
 
             switch (options.ArduinoModel)
             {
@@ -58,14 +57,14 @@ namespace ArduinoUploader
                 {
                     mcu = new ATMega328P();
                     serialPort = new UploaderSerialPort(serialPortName, 115200);
-                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu, memoryBlockGenerator);
+                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
                     break;
                 }
                 case ArduinoModel.Mega2560:
                 {
                     mcu = new ATMega2560();
                     serialPort = new UploaderSerialPort(serialPortName, 115200);
-                    programmer = new WiringBootloaderProgrammer(serialPort, mcu, memoryBlockGenerator);
+                    programmer = new WiringBootloaderProgrammer(serialPort, mcu);
                     break;
                 }
                 default:
@@ -99,7 +98,7 @@ namespace ArduinoUploader
                 logger.Info("Programming mode enabled.");
 
                 logger.Info("Programming device...");
-                programmer.ProgramDevice();
+                programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size));
                 logger.Info("Device programmed.");
 
                 programmer.Close();

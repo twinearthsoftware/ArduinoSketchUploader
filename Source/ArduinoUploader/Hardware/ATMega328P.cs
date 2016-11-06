@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
+using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
     internal class ATMega328P : ATMegaMCU
     {
-        public override int FlashSize { get { return 32*1024; } }
-        public override int FlashPageSize { get { return 0x80; } }
-        public override int EEPROMSize { get { return 1024; } }
-
         public override byte DeviceCode { get { return 0x86; } }
         public override byte DeviceRevision { get { return 0; } }
         public override byte ProgType { get { return 0; } }
@@ -16,10 +13,6 @@ namespace ArduinoUploader.Hardware
         public override byte SelfTimed { get { return 1; } }
         public override byte LockBytes { get { return 1; } }
         public override byte FuseBytes { get { return 3; } }
-        public override byte FlashPollVal1 { get { return 0xff; } }
-        public override byte FlashPollVal2 { get { return 0xff; } }
-        public override byte EEPROMPollVal1 { get { return 0xff; } }
-        public override byte EEPROMPollVal2 { get { return 0xff; } }
 
         public override byte Timeout { get { return 200; } }
         public override byte StabDelay { get { return 100; } }
@@ -32,6 +25,29 @@ namespace ArduinoUploader.Hardware
         public override IDictionary<Command, byte[]> CommandBytes
         {
             get { return new Dictionary<Command, byte[]>(); }
+        }
+
+        public override IList<IMemory> Memory
+        {
+            get
+            {
+                return new List<IMemory>()
+                {
+                    new FlashMemory()
+                    {
+                        Size = 32 * 1024,
+                        PageSize = 128,
+                        PollVal1 = 0xff,
+                        PollVal2 = 0xff
+                    },
+                    new EEPROMMemory()
+                    {
+                        Size = 1024,
+                        PollVal1 = 0xff,
+                        PollVal2 = 0xff
+                    }
+                };
+            }
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Protocols;
-using IntelHexFormatReader.Model;
 using NLog;
 
 namespace ArduinoUploader.BootloaderProgrammers
@@ -14,8 +12,8 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected UploaderSerialPort SerialPort { get; private set; }
 
-        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, Func<int, MemoryBlock> memoryBlockGenerator)
-            : base(memoryBlockGenerator, mcu)
+        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu)
+            : base(mcu)
         {
             SerialPort = serialPort;
         }
@@ -40,10 +38,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             var bytes = request.Bytes;
             var length = bytes.Length;
             logger.Trace(
-                "Sending {0} bytes: {1}{2}{3}{4}", 
-                length, 
-                Environment.NewLine, BitConverter.ToString(bytes),
-                Environment.NewLine, string.Join("-", bytes.Select(x => " " + Convert.ToChar(x))));
+                "Sending {0} bytes: {1}{2}", 
+                length, Environment.NewLine, BitConverter.ToString(bytes));
             SerialPort.Write(bytes, 0, length);
         }
 
@@ -54,9 +50,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             {
                 SerialPort.Read(bytes, 0, 1);
                 logger.Trace(
-                    "Receiving byte: {0}-{1}",
-                    BitConverter.ToString(bytes),
-                    string.Join("-", bytes.Select(x => " " + Convert.ToChar(x))));
+                    "Receiving byte: {0}",
+                    BitConverter.ToString(bytes));
                 return bytes[0];
             }
             catch (TimeoutException)
@@ -72,6 +67,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             {
                 SerialPort.WaitForBytes(length);
                 SerialPort.Read(bytes, 0, length);
+                logger.Trace("Receiving byte: {0}", BitConverter.ToString(bytes));
                 return bytes;
             }
             catch (TimeoutException)
