@@ -6,6 +6,7 @@
         internal const byte CMD_GET_PARAMETER                   = 0x03;
         internal const byte CMD_LOAD_ADDRESS                    = 0x06;
         internal const byte CMD_ENTER_PROGRMODE_ISP             = 0x10;
+        internal const byte CMD_LEAVE_PROGMODE_ISP              = 0x11;
         internal const byte CMD_PROGRAM_FLASH_ISP               = 0x13;
         internal const byte CMD_READ_FLASH_ISP                  = 0x14;
         internal const byte CMD_PROGRAM_EEPROM_ISP              = 0x15;

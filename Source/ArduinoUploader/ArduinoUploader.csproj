@@ -81,6 +81,8 @@
     <Compile Include="Protocols\STK500v1\Messages\SetDeviceProgrammingParametersRequest.cs" />
     <Compile Include="Protocols\STK500v2\Constants.cs" />
     <Compile Include="Protocols\STK500v2\Messages\GetSyncResponse.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="Protocols\STK500v2\Messages\LeaveProgrammingModeResponse.cs" />
     <Compile Include="Protocols\STK500v2\Messages\LoadAddressRequest.cs" />
     <Compile Include="Protocols\STK500v2\Messages\LoadAddressResponse.cs" />
     <Compile Include="UploaderSerialPort.cs">

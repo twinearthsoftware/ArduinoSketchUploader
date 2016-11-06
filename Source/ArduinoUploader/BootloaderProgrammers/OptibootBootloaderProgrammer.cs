@@ -137,6 +137,11 @@ namespace ArduinoUploader.BootloaderProgrammers
                     "Unable to enable programming mode on the device!");
         }
 
+        public override void LeaveProgrammingMode()
+        {
+            throw new NotImplementedException();
+        }
+
         private uint GetParameterValue(byte param)
         {
             logger.Trace("Retrieving parameter '{0}'...", param);

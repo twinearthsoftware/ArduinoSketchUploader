@@ -18,17 +18,17 @@ namespace ArduinoUploader.BootloaderProgrammers
             SerialPort = serialPort;
         }
 
-        protected void ToggleDtrRts(int wait1, int wait2)
+        protected void ToggleDtrRts(int wait1, int wait2, bool invert = false)
         {
             logger.Trace("Toggling DTR/RTS...");
 
-            SerialPort.DtrEnable = false;
-            SerialPort.RtsEnable = false;
+            SerialPort.DtrEnable = invert;
+            SerialPort.RtsEnable = invert;
 
             Thread.Sleep(wait1);
 
-            SerialPort.DtrEnable = true;
-            SerialPort.RtsEnable = true;
+            SerialPort.DtrEnable = !invert;
+            SerialPort.RtsEnable = !invert;
 
             Thread.Sleep(wait2);    
         }
@@ -63,11 +63,13 @@ namespace ArduinoUploader.BootloaderProgrammers
         protected byte[] ReceiveNext(int length)
         {
             var bytes = new byte[length];
+            var retrieved = 0;
             try
             {
-                SerialPort.WaitForBytes(length);
-                SerialPort.Read(bytes, 0, length);
-                logger.Trace("Receiving byte: {0}", BitConverter.ToString(bytes));
+                while (retrieved < length)
+                    retrieved += SerialPort.Read(bytes, retrieved, length - retrieved);
+
+                logger.Trace("Receiving bytes: {0}", BitConverter.ToString(bytes));
                 return bytes;
             }
             catch (TimeoutException)

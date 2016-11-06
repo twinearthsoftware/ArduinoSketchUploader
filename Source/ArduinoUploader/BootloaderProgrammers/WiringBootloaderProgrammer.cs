@@ -52,7 +52,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected override void Reset()
         {
-            ToggleDtrRts(50, 50);
+            ToggleDtrRts(50, 50, true);
         }
 
         protected override void Send(IRequest request)
@@ -137,21 +137,8 @@ namespace ArduinoUploader.BootloaderProgrammers
 
             logger.Trace("Received TOKEN.");
 
-            var payload = new byte[messageSize];
-            var retrieved = 0;
-            try
-            {
-                retrieved = SerialPort.Read(payload, 0, messageSize);
-                logger.Trace(
-                    "Retrieved {0} bytes: {1}",
-                    retrieved,
-                    BitConverter.ToString(payload));
-            }
-            catch (TimeoutException)
-            {
-                payload = null;
-            }
-            if (payload == null || retrieved < messageSize)
+            var payload = ReceiveNext(messageSize);
+            if (payload == null)
             {
                 logger.Warn(
                    STK500v2_CORRUPT_WRAPPER,
@@ -235,6 +222,15 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (response == null)
                 UploaderLogger.LogAndThrowError<IOException>(
                     "Unable to enable programming mode on the device!");
+        }
+
+        public override void LeaveProgrammingMode()
+        {
+            Send(new LeaveProgrammingModeRequest());
+            var response = Receive<LeaveProgrammingModeResponse>();
+            if (response == null)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    "Unable to leave programming mode on the device!");
         }
 
         public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)

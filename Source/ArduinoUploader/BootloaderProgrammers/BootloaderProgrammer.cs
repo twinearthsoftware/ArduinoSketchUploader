@@ -24,6 +24,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         public abstract void CheckDeviceSignature();
         public abstract void InitializeDevice();
         public abstract void EnableProgrammingMode();
+        public abstract void LeaveProgrammingMode();
         public abstract void ExecuteWritePage(IMemory memory, int offset, byte[] bytes);
         public abstract byte[] ExecuteReadPage(IMemory memory, int offset);
 
