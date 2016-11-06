@@ -1,8 +1,17 @@
 # ArduinoSketchUploader
 
-This repository contains both a .NET library and a Windows command line utility to upload a compiled sketch (.HEX file) directly to an Arduino board (without having to use the Arduino IDE or avrdude).
+This repository contains both a .NET library and a Windows command line utility to upload a compiled sketch (.HEX file) directly to an Arduino board over USB. It talks to the onboard bootloader over a serial connection, much like *avrdude* would do (e.g. when invoked from the Arduino IDE).
 
-> *Compatibility note: This library has only been tested with UNO (ATMega328P) based Arduino boards. It is expected that tweaking of hardware constants in the STK-500 bootloader communication is required in order to support other architectures.*
+## Compatibility ##
+
+The library has been tested with the following configurations only:
+
+| Arduino Model | MCU           | Bootloader protocol |
+| ------------- |:-------------:| -------------------:|
+| Uno (R3)      | ATMega328P    | STK500v1            |
+| Mega 2560     | ATMega2560    | STK500v2            |
+
+> *These are the boards I have myself at the moment. If you have a need for this library to run on another Arduino board, feel free to open a support issue.*
 
 ## How to use the command line application ##
 
@@ -11,21 +20,25 @@ This repository contains both a .NET library and a Windows command line utility 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
 ```
-ArduinoSketchUploader 1.0.4.0
+ArduinoSketchUploader 2.0.0.0
 Copyright c  2016
 
 ERROR(S):
   -f/--file required option is missing.
   -p/--port required option is missing.
+  -m/--model required option is missing.
 
 
-  -f, --file    Required. Path to the input file (in intel HEX format) which is
-                to be uploaded to the Arduino.
+  -f, --file     Required. Path to the input file (in intel HEX format) which
+                 is to be uploaded to the Arduino.
 
-  -p, --port    Required. Name of the COM port where the Arduino is attached
-                (e.g. 'COM1', 'COM2', 'COM3'...).
+  -p, --port     Required. Name of the COM port where the Arduino is attached
+                 (e.g. 'COM1', 'COM2', 'COM3'...).
 
-  --help        Display this help screen.
+  -m, --model    Required. Arduino model. Valid parameters are one of the
+                 following: [UnoR3, Mega2560].
+
+  --help         Display this help screen.
 ```
 
 
@@ -38,8 +51,6 @@ Alternatively, install the package using the nuget package manager console:
 ```
 Install-Package ArduinoUploader
 ```
-
-The library talks to the Arduino's bootloader directly through a dialect of the STK-500 protocol in order to flash the memory on the device with the contents of an Intel HEX file. This solution is fully self-contained (and native C#) and not just a wrapper for avrdude.
 
 The following minimal snippet shows how to upload a .hex file to an Arduino (UNO) board with the library:
 
