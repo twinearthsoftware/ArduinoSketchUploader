@@ -15,7 +15,7 @@ The library has been tested with the following configurations only:
 
 ## How to use the command line application ##
 
-[Download the latest Windows binaries here (.zip file, version 1.0.4).](https://github.com/christophediericx/ArduinoSketchUploader/files/557506/ArduinoSketchUploader-1.0.4.zip)
+[Download the latest Windows binaries here (.zip file, version 2.0.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.0.0/ArduinoSketchUploader-2.0.0.zip)
 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
