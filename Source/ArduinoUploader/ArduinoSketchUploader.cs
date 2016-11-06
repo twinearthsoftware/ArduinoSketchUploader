@@ -11,16 +11,12 @@ using NLog;
 
 namespace ArduinoUploader
 {
-    /// <summary>
-    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino.
-    /// </summary>
     public class ArduinoSketchUploader
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly ArduinoSketchUploaderOptions options;
         private UploaderSerialPort serialPort;
 
-        private const int UploadBaudRate = 115200;
         private const int SerialPortTimeOut = 1000;
 
         public ArduinoSketchUploader(ArduinoSketchUploaderOptions options)
@@ -51,40 +47,62 @@ namespace ArduinoUploader
             }
 
             logger.Trace("Creating serial port '{0}'...", serialPortName);
-            serialPort = new UploaderSerialPort(serialPortName, UploadBaudRate);
+            SerialPortBootloaderProgrammer programmer = null;
 
-            var mcu = new ATMega2560();
+            MCU mcu = null;
+            Func<int, MemoryBlock> memoryBlockGenerator = (memorySize) => ReadHexFile(hexFileContents, memorySize);
 
-            var hexFileMemoryBlock = ReadHexFile(hexFileContents, mcu.FlashSize);
-
-            SerialPortBootloaderProgrammer bootloaderProgrammer = 
-                new WiringBootloaderProgrammer(serialPort, mcu, hexFileMemoryBlock);
-
+            switch (options.ArduinoModel)
+            {
+                case ArduinoModel.UnoR3:
+                {
+                    mcu = new ATMega328P();
+                    serialPort = new UploaderSerialPort(serialPortName, 115200);
+                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu, memoryBlockGenerator);
+                    break;
+                }
+                case ArduinoModel.Mega2560:
+                {
+                    mcu = new ATMega2560();
+                    serialPort = new UploaderSerialPort(serialPortName, 115200);
+                    programmer = new WiringBootloaderProgrammer(serialPort, mcu, memoryBlockGenerator);
+                    break;
+                }
+                default:
+                {
+                    UploaderLogger.LogAndThrowError<IOException>(
+                        string.Format("Unsupported model: {0}!", options.ArduinoModel));
+                    break;
+                }
+            }
             try
             {
                 TryToOpenSerialPort();
                 ConfigureSerialPort();
 
-                bootloaderProgrammer.Open();
+                programmer.Open();
 
-                logger.Info(BootloaderProgrammerMessages.ESTABLISH_SYNC);
-                bootloaderProgrammer.EstablishSync();
-                logger.Info(BootloaderProgrammerMessages.SYNC_ESTABLISHED);
+                logger.Info("Establishing sync...");
+                programmer.EstablishSync();
+                logger.Info("Sync established.");
 
-                logger.Info(BootloaderProgrammerMessages.CHECK_DEVICE_SIG);
-                bootloaderProgrammer.CheckDeviceSignature();
-                logger.Info(BootloaderProgrammerMessages.DEVICE_SIG_CHECKED);
+                logger.Info("Checking device signature...");
+                programmer.CheckDeviceSignature();
+                logger.Info("Device signature checked.");
 
-                logger.Info(BootloaderProgrammerMessages.INITIALIZE_DEVICE);
-                bootloaderProgrammer.InitializeDevice();
-                logger.Info(BootloaderProgrammerMessages.DEVICE_INITIALIZED);
+                logger.Info("Initializing device...");
+                programmer.InitializeDevice();
+                logger.Info("Device initialized.");
 
-                logger.Info(BootloaderProgrammerMessages.ENABLE_PROGMODE);
-                bootloaderProgrammer.EnableProgrammingMode();
-                logger.Info(BootloaderProgrammerMessages.PROGMODE_ENABLED);
+                logger.Info("Enabling programming mode on the device...");
+                programmer.EnableProgrammingMode();
+                logger.Info("Programming mode enabled.");
 
-                bootloaderProgrammer.ProgramDevice();
-                bootloaderProgrammer.Close();
+                logger.Info("Programming device...");
+                programmer.ProgramDevice();
+                logger.Info("Device programmed.");
+
+                programmer.Close();
             }
             finally
             {

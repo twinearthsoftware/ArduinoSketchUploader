@@ -6,6 +6,11 @@ using ArduinoUploader.Protocols.STK500v2;
 using ArduinoUploader.Protocols.STK500v2.Messages;
 using IntelHexFormatReader.Model;
 using NLog;
+using EnableProgrammingModeRequest = ArduinoUploader.Protocols.STK500v2.Messages.EnableProgrammingModeRequest;
+using GetParameterRequest = ArduinoUploader.Protocols.STK500v2.Messages.GetParameterRequest;
+using GetSyncRequest = ArduinoUploader.Protocols.STK500v2.Messages.GetSyncRequest;
+using GetSyncResponse = ArduinoUploader.Protocols.STK500v2.Messages.GetSyncResponse;
+using LoadAddressRequest = ArduinoUploader.Protocols.STK500v2.Messages.LoadAddressRequest;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
@@ -13,6 +18,7 @@ namespace ArduinoUploader.BootloaderProgrammers
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const string EXPECTED_DEVICE_SIGNATURE = "AVRISP_2";
+        private const string STK500v2_CORRUPT_WRAPPER = "STK500V2 wrapper corrupted ({0})!";
 
         private string deviceSignature;
         private static byte sequenceNumber;
@@ -26,14 +32,13 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
         }
 
-        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, MemoryBlock memoryBlock)
-            : base(serialPort, mcu, memoryBlock)
+        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, Func<int, MemoryBlock> memoryBlockGenerator)
+            : base(serialPort, mcu, memoryBlockGenerator)
         {
         }
 
         protected override void Reset()
         {
-            logger.Info(BootloaderProgrammerMessages.RESETTING_ARDUINO);
             ToggleDtrRts(50, 50);
         }
 
@@ -66,8 +71,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (messageStart != Constants.MESSAGE_START)
             {
                 logger.Warn(
-                    BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                    BootloaderProgrammerMessages.STK500v2_NO_START_MESSAGE);
+                    STK500v2_CORRUPT_WRAPPER,
+                    "No Start Message detected!");
                 return null;                
             }
             wrappedResponseBytes[0] = (byte) messageStart;
@@ -76,8 +81,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (seqNumber != LastCommandSequenceNumber)
             {
                 logger.Warn(
-                    BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                    BootloaderProgrammerMessages.STK500v2_WRONG_SEQ_NUMBER);
+                    STK500v2_CORRUPT_WRAPPER,
+                    "Wrong sequence number!");
                 return null;                      
             }
             wrappedResponseBytes[1] = sequenceNumber;
@@ -86,8 +91,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (messageSizeHighByte == -1)
             {
                 logger.Warn(
-                    BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                    BootloaderProgrammerMessages.STK500v2_TIMEOUT);
+                    STK500v2_CORRUPT_WRAPPER,
+                    "Timeout ocurred!");
                 return null;                       
             }
             wrappedResponseBytes[2] = (byte) messageSizeHighByte;
@@ -96,8 +101,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (messageSizeLowByte == -1)
             {
                 logger.Warn(
-                    BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                    BootloaderProgrammerMessages.STK500v2_TIMEOUT);
+                    STK500v2_CORRUPT_WRAPPER,
+                    "Timeout ocurred!");
                 return null;
             }
             wrappedResponseBytes[3] = (byte) messageSizeLowByte;
@@ -108,18 +113,26 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (token != Constants.TOKEN)
             {
                 logger.Warn(
-                   BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                   BootloaderProgrammerMessages.STK500v2_TOKEN_NOT_RECEIVED);
+                   STK500v2_CORRUPT_WRAPPER,
+                   "Token not received!");
                 return null;               
             }
             wrappedResponseBytes[4] = (byte) token;
 
-            var payload = ReceiveNext(messageSize);
+            var payload = new byte[messageSize];
+            try
+            {
+                SerialPort.Read(payload, 0, messageSize);
+            }
+            catch (TimeoutException)
+            {
+                payload = null;
+            }
             if (payload == null)
             {
                 logger.Warn(
-                   BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                   BootloaderProgrammerMessages.STK500v2_MESSAGE_NOT_RECEIVED);
+                   STK500v2_CORRUPT_WRAPPER,
+                   "Inner message not received!");
                 return null;                               
             }
 
@@ -129,8 +142,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (responseCheckSum == -1)
             {
                 logger.Warn(
-                   BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                   BootloaderProgrammerMessages.STK500v2_CHECKSUM_NOT_RECEIVED);
+                   STK500v2_CORRUPT_WRAPPER,
+                   "Checksum not received!");
                 return null;
             }
             wrappedResponseBytes[5 + messageSize] = (byte) responseCheckSum;
@@ -141,8 +154,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (responseCheckSum != checksum)
             {
                 logger.Warn(
-                    BootloaderProgrammerMessages.STK500v2_CORRUPT_WRAPPER,
-                    BootloaderProgrammerMessages.STK500v2_CHECKSUM_INCORRECT
+                    STK500v2_CORRUPT_WRAPPER,
+                    "Checksum incorrect!"
                     );
                 return null;
             }
@@ -168,17 +181,17 @@ namespace ArduinoUploader.BootloaderProgrammers
 
             if (i == MaxSyncRetries)
                 UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format(BootloaderProgrammerMessages.NO_SYNC_WITH_RETRIES, MaxSyncRetries));
+                    string.Format(
+                        "Unable to establish sync after {0} retries.", MaxSyncRetries));
         }
 
         public override void CheckDeviceSignature()
         {
-            logger.Debug(BootloaderProgrammerMessages.DEVICE_SIG_EXPECTED, 
-                EXPECTED_DEVICE_SIGNATURE);
+            logger.Debug("Expecting to find '{0}'...", EXPECTED_DEVICE_SIGNATURE);
 
             if (!deviceSignature.Equals(EXPECTED_DEVICE_SIGNATURE))
                 UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format(BootloaderProgrammerMessages.UNEXPECTED_DEVICE_SIG,
+                    string.Format("Unexpected device signature - found '{0}'- expected '{1}'.",
                         deviceSignature, EXPECTED_DEVICE_SIGNATURE));
         }
 
@@ -187,7 +200,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var hardwareVersion = GetParameterValue(Constants.PARAM_HW_VER);
             var softwareMajor = GetParameterValue(Constants.PARAM_SW_MAJOR);
             var softwareMinor = GetParameterValue(Constants.PARAM_SW_MINOR);
-            logger.Info(BootloaderProgrammerMessages.SOFTWARE_VERSION,
+            logger.Info("Retrieved software version: {0}.",
                 string.Format("{0} (hardware) - {1}.{2} (software)", 
                     hardwareVersion, softwareMajor, softwareMinor));
         }
@@ -198,23 +211,52 @@ namespace ArduinoUploader.BootloaderProgrammers
             var response = Receive<EnableProgrammingModeResponse>();
             if (response == null)
                 UploaderLogger.LogAndThrowError<IOException>(
-                    BootloaderProgrammerMessages.ENABLE_PROGMODE_FAILURE);
+                    "Unable to enable programming mode on the device!");
         }
 
-        public override void ProgramDevice()
+        public override void ExecuteWritePage(MemoryType memType, int offset, byte[] bytes)
         {
             throw new NotImplementedException();
         }
 
+        public override byte[] ExecuteReadPage(MemoryType memType, int offset, int pageSize)
+        {
+            LoadAddress(offset);
+            Send(new ExecuteReadPageRequest(memType, offset));
+            var response = Receive<ExecuteReadPageResponse>();
+            //SendWithSyncRetry(new ExecuteReadPageRequest(memType, pageSize));
+            //var bytes = ReceiveNext(pageSize);
+            //if (bytes == null)
+            //{
+            //    UploaderLogger.LogAndThrowError<IOException>(
+            //        string.Format("Read at offset {0} failed!", offset));
+            //}
+
+            //var nextByte = ReceiveNext();
+            //if (nextByte == Constants.RESP_STK_OK) return bytes;
+            //UploaderLogger.LogAndThrowError<IOException>(
+            //    string.Format("Read at offset {0} failed!", offset));
+            return null;
+        }
+
+        private void LoadAddress(int addr)
+        {
+            logger.Trace("Sending load address request: {0}.", addr);
+            Send(new LoadAddressRequest(addr | 1 << 31));
+            var response = Receive<LoadAddressResponse>();
+            if (response == null || !response.Succeeded)
+                UploaderLogger.LogAndThrowError<IOException>(
+                    "Unable to execute load address!");
+        }
+
         private uint GetParameterValue(byte param)
         {
-            logger.Trace(BootloaderProgrammerMessages.GET_PARAM, param);
+            logger.Trace("Retrieving parameter '{0}'...", param);
             Send(new GetParameterRequest(param));
             var response = Receive<GetParameterResponse>();
             if (response == null || !response.IsSuccess)
                 UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format(BootloaderProgrammerMessages.GET_PARAM_FAILED, param));
-            // ReSharper disable once PossibleNullReferenceException
+                    string.Format("Retrieving parameter '{0}' failed!", param));
             return response.ParameterValue;
         }
     }

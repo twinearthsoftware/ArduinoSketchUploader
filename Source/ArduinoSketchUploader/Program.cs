@@ -17,7 +17,8 @@ namespace ArduinoSketchUploader
             var options = new ArduinoSketchUploaderOptions
             {
                 PortName = commandLineOptions.PortName,
-                FileName = commandLineOptions.FileName
+                FileName = commandLineOptions.FileName,
+                ArduinoModel = commandLineOptions.ArduinoModel
             };
             var uploader = new ArduinoUploader.ArduinoSketchUploader(options);
             uploader.UploadSketch();

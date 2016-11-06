@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using ArduinoUploader.Hardware;
+using CommandLine;
 using CommandLine.Text;
 
 namespace ArduinoSketchUploader
@@ -10,6 +11,9 @@ namespace ArduinoSketchUploader
 
         [Option('p', "port", Required = true, HelpText = "Name of the COM port where the Arduino is attached (e.g. 'COM1', 'COM2', 'COM3'...).")]
         public string PortName { get; set; }
+
+        [Option('m', "model", Required = true, HelpText = "Arduino model. Valid parameters are any of the following: [UnoR3, Mega2560].")]
+        public ArduinoModel ArduinoModel { get; set; }
 
         [ParserState]
         public IParserState LastParserState { get; set; }

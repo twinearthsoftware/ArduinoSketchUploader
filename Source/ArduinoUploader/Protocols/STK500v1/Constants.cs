@@ -8,6 +8,7 @@
         internal const byte CMD_STK_ENTER_PROGMODE              = 0x50;
         internal const byte CMD_STK_LOAD_ADDRESS                = 0x55;
         internal const byte CMD_STK_PROG_PAGE                   = 0x64;
+        internal const byte CMD_STK_READ_PAGE                   = 0x74;
         internal const byte CMD_STK_READ_SIGNATURE              = 0x75;
 
         internal const byte SYNC_CRC_EOP                        = 0x20;

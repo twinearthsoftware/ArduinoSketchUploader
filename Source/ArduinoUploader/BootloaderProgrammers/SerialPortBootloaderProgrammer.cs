@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using ArduinoUploader.Hardware;
 using ArduinoUploader.Protocols;
 using IntelHexFormatReader.Model;
 using NLog;
@@ -13,15 +14,15 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected UploaderSerialPort SerialPort { get; private set; }
 
-        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, MemoryBlock memoryBlock)
-            : base(memoryBlock)
+        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, MCU mcu, Func<int, MemoryBlock> memoryBlockGenerator)
+            : base(memoryBlockGenerator, mcu)
         {
             SerialPort = serialPort;
         }
 
         protected void ToggleDtrRts(int wait1, int wait2)
         {
-            logger.Debug(BootloaderProgrammerMessages.TOGGLE_DTR_RTS);
+            logger.Trace("Toggling DTR/RTS...");
 
             SerialPort.DtrEnable = false;
             SerialPort.RtsEnable = false;
@@ -69,6 +70,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var bytes = new byte[length];
             try
             {
+                SerialPort.WaitForBytes(length);
                 SerialPort.Read(bytes, 0, length);
                 return bytes;
             }

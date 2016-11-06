@@ -1,6 +1,6 @@
 ﻿namespace ArduinoUploader.Hardware
 {
-    internal enum ArduinoModel
+    public enum ArduinoModel
     {
         UnoR3,
         Mega2560
