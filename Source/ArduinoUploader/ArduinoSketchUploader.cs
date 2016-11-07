@@ -53,18 +53,25 @@ namespace ArduinoUploader
 
             switch (options.ArduinoModel)
             {
-                case ArduinoModel.UnoR3:
-                {
-                    mcu = new ATMega328P();
-                    serialPort = new UploaderSerialPort(serialPortName, 115200);
-                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
-                    break;
-                }
                 case ArduinoModel.Mega2560:
                 {
                     mcu = new ATMega2560();
                     serialPort = new UploaderSerialPort(serialPortName, 115200);
                     programmer = new WiringBootloaderProgrammer(serialPort, mcu);
+                    break;
+                }
+                case ArduinoModel.NanoR3:
+                {
+                    mcu = new ATMega328P();
+                    serialPort = new UploaderSerialPort(serialPortName, 57600);
+                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
+                    break;
+                }
+                case ArduinoModel.UnoR3:
+                {
+                    mcu = new ATMega328P();
+                    serialPort = new UploaderSerialPort(serialPortName, 115200);
+                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
                     break;
                 }
                 default:

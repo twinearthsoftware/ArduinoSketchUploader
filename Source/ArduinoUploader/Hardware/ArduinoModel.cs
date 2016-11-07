@@ -2,7 +2,8 @@
 {
     public enum ArduinoModel
     {
-        UnoR3,
-        Mega2560
+        Mega2560,
+        NanoR3,
+        UnoR3
     }
 }
