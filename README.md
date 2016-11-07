@@ -12,7 +12,7 @@ The library has been tested with the following configurations:
 | Nano (R3)     | ATMega328P    | STK500v1            |
 | Uno (R3)      | ATMega328P    | STK500v1            |
 
-> *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be fairly straightforward (for most) to add support.*
+> *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be relatively straightforward to add support (for most).*
 
 ## How to use the command line application ##
 
@@ -67,5 +67,5 @@ var uploader = new ArduinoSketchUploader(
 uploader.UploadSketch();
 ```
 
-The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically generate these messages as well.
+The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically emit these messages as well.
 
