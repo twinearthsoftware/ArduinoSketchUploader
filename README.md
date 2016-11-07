@@ -67,5 +67,5 @@ var uploader = new ArduinoSketchUploader(
 uploader.UploadSketch();
 ```
 
-The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically generate these messages as well.
+The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically emit these messages as well.
 
