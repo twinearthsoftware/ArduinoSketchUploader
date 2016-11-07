@@ -8,19 +8,20 @@ The library has been tested with the following configurations:
 
 | Arduino Model | MCU           | Bootloader protocol |
 | ------------- |:-------------:| -------------------:|
-| Uno (R3)      | ATMega328P    | STK500v1            |
 | Mega 2560     | ATMega2560    | STK500v2            |
+| Nano (R3)     | ATMega328P    | STK500v1            |
+| Uno (R3)      | ATMega328P    | STK500v1            |
 
-> *These are the only boards I currently have access to for testing purposes. If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be fairly straightforward (for most) to add support.*
+> *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be fairly straightforward (for most) to add support.*
 
 ## How to use the command line application ##
 
-[Download the latest Windows binaries here (.zip file, version 2.0.2).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.0.2/ArduinoSketchUploader-2.0.2.zip)
+[Download the latest Windows binaries here (.zip file, version 2.1.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.1.0/ArduinoSketchUploader-2.1.0.zip)
 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
 ```
-ArduinoSketchUploader 2.0.2.0
+ArduinoSketchUploader 2.1.0.0
 Copyright c  2016
 
 ERROR(S):
@@ -36,7 +37,7 @@ ERROR(S):
                  (e.g. 'COM1', 'COM2', 'COM3'...).
 
   -m, --model    Required. Arduino model. Valid parameters are one of the
-                 following: [UnoR3, Mega2560].
+                 following: [Mega2560, NanoR3, UnoR3].
 
   --help         Display this help screen.
 ```
