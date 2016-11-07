@@ -1,6 +1,8 @@
 # ArduinoSketchUploader
 
-This repository contains a .NET library (and a corresponding Windows command line utility) that can upload a compiled sketch (.HEX) directly to an Arduino board over USB. It talks to the bootloader over the serial connection, much like *avrdude* would do (when invoked from the Arduino IDE).
+This repository contains a .NET library and a corresponding Windows command line utility that can be used to upload a compiled sketch (.HEX) directly to an Arduino board over USB. It talks to the boards bootloader over the serial (USB) connection, much like *avrdude* does (when invoked from the Arduino IDE, or from the command line).
+
+![ArduinoSketchUploader](https://github.com/christophediericx/ArduinoSketchUploader/blob/master/Images/ArduinoSketchUploader.png)
 
 ## Compatibility ##
 
@@ -8,9 +10,9 @@ The library has been tested with the following configurations:
 
 | Arduino Model | MCU           | Bootloader protocol |
 | ------------- |:-------------:| -------------------:|
-| Mega 2560     | ATMega2560    | STK500v2            |
-| Nano (R3)     | ATMega328P    | STK500v1            |
-| Uno (R3)      | ATMega328P    | STK500v1            |
+| Mega 2560     | ATMega2560    | [STK500v2](/Documentation/STK500v2.pdf)            |
+| Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
+| Uno (R3)      | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)           |
 
 > *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be relatively straightforward to add support (for most).*
 
@@ -41,7 +43,11 @@ ERROR(S):
 
   --help         Display this help screen.
 ```
+A sample command line invocation (for a Mega2560 type Arduino attached to COM4):
 
+```
+ArduinoSketchUploader.exe --file=C:\MyHexFile\myHexFile.hex --port=COM4 --model=Mega2560
+```
 
 ## How to use the .NET library ##
 
@@ -66,6 +72,8 @@ var uploader = new ArduinoSketchUploader(
 
 uploader.UploadSketch();
 ```
+
+## Logging ##
 
 The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically emit these messages as well.
 
