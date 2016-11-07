@@ -1,17 +1,17 @@
 # ArduinoSketchUploader
 
-This repository contains both a .NET library and a Windows command line utility to upload a compiled sketch (.HEX file) directly to an Arduino board over USB. It talks to the onboard bootloader over a serial connection, much like *avrdude* would do (e.g. when invoked from the Arduino IDE).
+This repository contains a .NET library (and a corresponding Windows command line utility) that can upload a compiled sketch (.HEX) directly to an Arduino board over USB. It talks to the bootloader over the serial connection, much like *avrdude* would do (when invoked from the Arduino IDE).
 
 ## Compatibility ##
 
-The library has been tested with the following configurations only:
+The library has been tested with the following configurations:
 
 | Arduino Model | MCU           | Bootloader protocol |
 | ------------- |:-------------:| -------------------:|
 | Uno (R3)      | ATMega328P    | STK500v1            |
 | Mega 2560     | ATMega2560    | STK500v2            |
 
-> *These are the boards I have myself at the moment. If you have a need for this library to run on another Arduino board, feel free to open a support issue.*
+> *These are the only boards I have access to for testing. If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be fairly straightforward (for most) to add support.*
 
 ## How to use the command line application ##
 
@@ -52,27 +52,19 @@ Alternatively, install the package using the nuget package manager console:
 Install-Package ArduinoUploader
 ```
 
-The following minimal snippet shows how to upload a .hex file to an Arduino (UNO) board with the library:
+The following minimal snippet shows how to upload a .HEX file to an Arduino (UNO) board attached at COM port 3:
 
 ```csharp
-using ArduinoUploader;
-
-namespace ArduinoUploaderDemo
-{
-    internal class Program
+var uploader = new ArduinoSketchUploader(
+    new ArduinoSketchUploaderOptions()
     {
-        private static void Main(string[] args)
-        {
-            var uploader = new ArduinoSketchUploader(
-                new ArduinoSketchUploaderOptions()
-                {
-                    FileName = @"C:\MyHexFiles\MyHexFile.hex",
-                    PortName = "COM3"
-                });
+        FileName = @"C:\MyHexFiles\UnoHexFile.ino.hex",
+        PortName = "COM3",
+        ArduinoModel = ArduinoModel.UnoR3
+    });
 
-            uploader.UploadSketch();
-        }
-    }
-}
+uploader.UploadSketch();
 ```
+
+The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically generate these messages as well.
 
