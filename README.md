@@ -11,7 +11,7 @@ The library has been tested with the following configurations:
 | Uno (R3)      | ATMega328P    | STK500v1            |
 | Mega 2560     | ATMega2560    | STK500v2            |
 
-> *These are the only boards I have access to for testing. If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be fairly straightforward (for most) to add support.*
+> *These are the only boards I currently have access to for testing purposes. If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be fairly straightforward (for most) to add support.*
 
 ## How to use the command line application ##
 
