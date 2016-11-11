@@ -51,6 +51,8 @@ ArduinoSketchUploader.exe --file=C:\MyHexFile\myHexFile.hex --port=COM4 --model=
 
 ## How to use the .NET library ##
 
+[![NuGet version](https://badge.fury.io/nu/ArduinoUploader.svg)](https://badge.fury.io/nu/ArduinoUploader)
+
 Link the following nuget package in your project in order to use the ArduinoUploader: https://www.nuget.org/packages/ArduinoUploader/
 
 Alternatively, install the package using the nuget package manager console:
