@@ -3,7 +3,7 @@
 namespace ArduinoSketchUploader
 {
     /// <summary>
-    /// The ArduinoLibCSharp SketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino.
+    /// The ArduinoSketchUploader can upload a compiled (Intel) HEX file directly to an attached Arduino.
     /// </summary>
     internal class Program
     {
