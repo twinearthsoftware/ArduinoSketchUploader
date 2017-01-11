@@ -12,7 +12,8 @@ The library has been tested with the following configurations:
 | ------------- |:-------------:| -------------------:|
 | Mega 2560     | ATMega2560    | [STK500v2](/Documentation/STK500v2.pdf)            |
 | Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
-| Uno (R3)      | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)           |
+| Micro         | ATMega32U4    | [AVR109](/Documentation/AVR109.pdf)                |
+| Uno (R3)      | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
 
 > *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be relatively straightforward to add support (for most).*
 
