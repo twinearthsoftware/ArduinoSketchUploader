@@ -11,8 +11,8 @@ The library has been tested with the following configurations:
 | Arduino Model | MCU           | Bootloader protocol |
 | ------------- |:-------------:| -------------------:|
 | Mega 2560     | ATMega2560    | [STK500v2](/Documentation/STK500v2.pdf)            |
-| Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
 | Micro         | ATMega32U4    | [AVR109](/Documentation/AVR109.pdf)                |
+| Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
 | Uno (R3)      | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
 
 > *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be relatively straightforward to add support (for most).*
@@ -24,7 +24,7 @@ The library has been tested with the following configurations:
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
 ```
-ArduinoSketchUploader 2.1.0.0
+ArduinoSketchUploader 2.2.0.0
 Copyright c  2016
 
 ERROR(S):
@@ -39,8 +39,8 @@ ERROR(S):
   -p, --port     Required. Name of the COM port where the Arduino is attached
                  (e.g. 'COM1', 'COM2', 'COM3'...).
 
-  -m, --model    Required. Arduino model. Valid parameters are one of the
-                 following: [Mega2560, NanoR3, UnoR3].
+  -m, --model    Required. Arduino model. Valid parameters are any of the
+                 following: [Mega2560, Micro, NanoR3, UnoR3].
 
   --help         Display this help screen.
 ```
