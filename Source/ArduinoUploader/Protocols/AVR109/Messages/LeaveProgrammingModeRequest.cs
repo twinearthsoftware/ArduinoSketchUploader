@@ -1,4 +1,4 @@
-﻿namespace ArduinoUploader.Protocols.STK500v1.Messages
+﻿namespace ArduinoUploader.Protocols.AVR109.Messages
 {
     internal class LeaveProgrammingModeRequest : Request
     {
@@ -6,8 +6,7 @@
         {
             Bytes = new[]
             {
-                Constants.CMD_STK_LEAVE_PROGMODE,
-                Constants.SYNC_CRC_EOP
+                Constants.CMD_LEAVE_PROGRAMMING_MODE
             };
         }
     }

@@ -5,7 +5,7 @@ namespace ArduinoUploader.Protocols.STK500v1.Messages
 {
     internal class ExecuteProgramPageRequest : Request
     {
-        public ExecuteProgramPageRequest(IMemory memory, byte[] bytesToCopy)
+        internal ExecuteProgramPageRequest(IMemory memory, byte[] bytesToCopy)
         {
             var size = bytesToCopy.Length;
             Bytes = new byte[size + 5];

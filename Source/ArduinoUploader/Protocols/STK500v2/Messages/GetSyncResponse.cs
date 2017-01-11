@@ -5,7 +5,7 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class GetSyncResponse : Response
     {
-        public bool IsInSync
+        internal bool IsInSync
         {
             get
             {
@@ -15,7 +15,7 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
             }
         }
 
-        public string Signature
+        internal string Signature
         {
             get
             {

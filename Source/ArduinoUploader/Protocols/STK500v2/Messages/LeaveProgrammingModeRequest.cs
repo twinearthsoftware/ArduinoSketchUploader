@@ -2,7 +2,7 @@
 {
     internal class LeaveProgrammingModeRequest : Request
     {
-        public LeaveProgrammingModeRequest()
+        internal LeaveProgrammingModeRequest()
         {
             Bytes = new[]
             {

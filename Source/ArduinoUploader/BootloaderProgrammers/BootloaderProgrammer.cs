@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
+using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
 using IntelHexFormatReader.Model;
@@ -25,8 +25,9 @@ namespace ArduinoUploader.BootloaderProgrammers
         public abstract void InitializeDevice();
         public abstract void EnableProgrammingMode();
         public abstract void LeaveProgrammingMode();
+        public abstract void LoadAddress(IMemory memory, int offset);
         public abstract void ExecuteWritePage(IMemory memory, int offset, byte[] bytes);
-        public abstract byte[] ExecuteReadPage(IMemory memory, int offset);
+        public abstract byte[] ExecuteReadPage(IMemory memory);
 
         public virtual void ProgramDevice(MemoryBlock memoryBlock)
         {
@@ -52,20 +53,24 @@ namespace ArduinoUploader.BootloaderProgrammers
                     var bytesToCopy = memoryBlock.Cells.Skip(offset).Take(pageSize).Select(x => x.Value).ToArray();
 
                     logger.Trace("Checking if bytes at offset {0} need to be overwritten...", offset);
-                    var bytesAlreadyPresent = ExecuteReadPage(flashMem, offset);
+                    LoadAddress(flashMem, offset);
+                    var bytesAlreadyPresent = ExecuteReadPage(flashMem);
                     if (bytesAlreadyPresent.SequenceEqual(bytesToCopy))
                     {
                         logger.Trace("Bytes to be written are identical to bytes already present - skipping actual write!");
                         continue;
                     }
                     logger.Trace("Writing page at offset {0}.", offset);
+                    LoadAddress(flashMem, offset);
                     ExecuteWritePage(flashMem, offset, bytesToCopy);
-                    logger.Trace("Page written, now verifying...");
 
-                    var verify = ExecuteReadPage(flashMem, offset);
+                    logger.Trace("Page written, now verifying...");
+                    Thread.Sleep(10);
+                    LoadAddress(flashMem, offset);
+                    var verify = ExecuteReadPage(flashMem);
                     var succeeded = verify.SequenceEqual(bytesToCopy);
                     if (!succeeded)
-                        UploaderLogger.LogAndThrowError<IOException>(
+                        UploaderLogger.LogErrorAndQuit(
                             "Difference encountered during verification, write failed!");
                 }
                 else

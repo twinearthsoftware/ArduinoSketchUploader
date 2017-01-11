@@ -4,7 +4,7 @@ namespace ArduinoUploader.Protocols.STK500v1.Messages
 {
     internal class SetDeviceProgrammingParametersRequest : Request
     {
-        public SetDeviceProgrammingParametersRequest(IMCU mcu)
+        internal SetDeviceProgrammingParametersRequest(IMCU mcu)
         {
             var flashMem = mcu.Flash;
             var eepromMem = mcu.EEPROM;

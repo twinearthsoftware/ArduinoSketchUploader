@@ -13,7 +13,8 @@ namespace ArduinoUploader.BootloaderProgrammers
         void EnableProgrammingMode();
         void LeaveProgrammingMode();
         void ProgramDevice(MemoryBlock memoryBlock);
+        void LoadAddress(IMemory memory, int offset);
         void ExecuteWritePage(IMemory memory, int offset, byte[] bytes);
-        byte[] ExecuteReadPage(IMemory memory, int offset);
+        byte[] ExecuteReadPage(IMemory memory);
     }
 }

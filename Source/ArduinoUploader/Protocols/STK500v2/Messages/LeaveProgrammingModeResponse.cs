@@ -2,7 +2,7 @@
 {
     internal class LeaveProgrammingModeResponse : Response
     {
-        public bool Success
+        internal bool Success
         {
             get
             {

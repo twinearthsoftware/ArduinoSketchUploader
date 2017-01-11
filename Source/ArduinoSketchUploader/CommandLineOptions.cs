@@ -12,7 +12,7 @@ namespace ArduinoSketchUploader
         [Option('p', "port", Required = true, HelpText = "Name of the COM port where the Arduino is attached (e.g. 'COM1', 'COM2', 'COM3'...).")]
         public string PortName { get; set; }
 
-        [Option('m', "model", Required = true, HelpText = "Arduino model. Valid parameters are any of the following: [Mega2560, NanoR3, UnoR3].")]
+        [Option('m', "model", Required = true, HelpText = "Arduino model. Valid parameters are any of the following: [Mega2560, Micro, NanoR3, UnoR3].")]
         public ArduinoModel ArduinoModel { get; set; }
 
         [ParserState]

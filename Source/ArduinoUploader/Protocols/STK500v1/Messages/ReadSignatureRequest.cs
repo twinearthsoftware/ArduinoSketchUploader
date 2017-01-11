@@ -2,7 +2,7 @@
 {
     internal class ReadSignatureRequest : Request
     {
-        public ReadSignatureRequest()
+        internal ReadSignatureRequest()
         {
             Bytes = new[]
             {

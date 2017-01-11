@@ -2,12 +2,12 @@
 {
     internal class ReadSignatureResponse : Response
     {
-        public bool IsCorrectResponse
+        internal bool IsCorrectResponse
         {
             get { return Bytes.Length == 4 && Bytes[3] == Constants.RESP_STK_OK; }
         }
 
-        public byte[] Signature
+        internal byte[] Signature
         {
             get {  return new[] { Bytes[0], Bytes[1], Bytes[2] }; }
         }

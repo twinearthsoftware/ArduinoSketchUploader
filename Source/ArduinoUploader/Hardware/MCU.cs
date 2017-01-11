@@ -6,6 +6,8 @@ namespace ArduinoUploader.Hardware
 {
     internal abstract class MCU : IMCU
     {
+        // TODO: move properties (both on interface and implementation to correct corresponding places)
+        // At the moment this is just one giant mixin class.
         public abstract byte DeviceCode { get; }
         public abstract byte DeviceRevision { get; }
         public abstract byte LockBytes { get; }

@@ -8,19 +8,21 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         protected abstract void Reset();
 
-        protected ArduinoBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
-            : base(serialPort, mcu)
+        protected ArduinoBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
+            : base(serialPortConfig, mcu)
         {
         }
 
         public override void Open()
         {
+            base.Open();
             Reset();
         }
 
         public override void Close()
         {
             Reset();
+            base.Close();
         }
     }
 }

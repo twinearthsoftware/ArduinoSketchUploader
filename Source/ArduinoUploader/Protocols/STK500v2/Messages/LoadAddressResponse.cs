@@ -2,7 +2,7 @@
 {
     internal class LoadAddressResponse : Response
     {
-        public bool Succeeded
+        internal bool Succeeded
         {
             get
             {

@@ -2,7 +2,7 @@
 {
     internal class EnableProgrammingModeRequest : Request
     {
-        public EnableProgrammingModeRequest()
+        internal EnableProgrammingModeRequest()
         {
             Bytes = new[]
             {

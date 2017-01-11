@@ -2,7 +2,7 @@
 {
     internal class GetParameterResponse : Response
     {
-        public bool IsSuccess
+        internal bool IsSuccess
         {
             get
             {
@@ -11,7 +11,7 @@
             }
         }
 
-        public byte ParameterValue
+        internal byte ParameterValue
         {
             get { return Bytes[2]; }
         }

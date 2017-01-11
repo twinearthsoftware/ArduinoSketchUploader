@@ -2,7 +2,7 @@
 {
     internal class LoadAddressRequest : Request
     {
-        public LoadAddressRequest(int address)
+        internal LoadAddressRequest(int address)
         {
             Bytes = new[]
             {

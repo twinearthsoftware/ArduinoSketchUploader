@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
 using ArduinoUploader.Protocols;
@@ -45,8 +44,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
         }
 
-        public WiringBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
-            : base(serialPort, mcu)
+        public WiringBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
+            : base(serialPortConfig, mcu)
         {
         }
 
@@ -190,7 +189,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
 
             if (i == MaxSyncRetries)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Unable to establish sync after {0} retries.", MaxSyncRetries));
         }
@@ -200,7 +199,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             logger.Debug("Expecting to find '{0}'...", EXPECTED_DEVICE_SIGNATURE);
 
             if (!deviceSignature.Equals(EXPECTED_DEVICE_SIGNATURE))
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format("Unexpected device signature - found '{0}'- expected '{1}'.",
                         deviceSignature, EXPECTED_DEVICE_SIGNATURE));
         }
@@ -220,7 +219,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new EnableProgrammingModeRequest(MCU));
             var response = Receive<EnableProgrammingModeResponse>();
             if (response == null)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to enable programming mode on the device!");
         }
 
@@ -229,13 +228,12 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new LeaveProgrammingModeRequest());
             var response = Receive<LeaveProgrammingModeResponse>();
             if (response == null)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to leave programming mode on the device!");
         }
 
         public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)
         {
-            LoadAddress(memory, offset);
             logger.Trace(
                 "Sending execute write page request for offset {0} ({1} bytes)...", 
                 offset, bytes.Length);
@@ -247,40 +245,34 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (response == null || response.AnswerID != writeCmd
                 || response.Status != Constants.STATUS_CMD_OK)
             {
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Executing write page request at offset {0} failed!", offset));
             }
         }
 
-        public override byte[] ExecuteReadPage(IMemory memory, int offset)
+        public override byte[] ExecuteReadPage(IMemory memory)
         {
-            LoadAddress(memory, offset);
-            logger.Trace("Sending execute read page request (offset {0})...", offset);
             var readCmd = readCommands[memory.Type];
 
             Send(new ExecuteReadPageRequest(readCmd, memory));
             var response = Receive<ExecuteReadPageResponse>();
-            if (response == null || response.AnswerID != readCmd
-                || response.Status != Constants.STATUS_CMD_OK)
-            {
-                UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format(
-                        "Executing read page request at offset {0} failed!", offset));
-            }
+            if (response == null || response.AnswerID != readCmd || response.Status != Constants.STATUS_CMD_OK)
+                UploaderLogger.LogErrorAndQuit("Executing read page request failed!");
+
             var responseBytes = new byte[memory.PageSize];
             Buffer.BlockCopy(response.Bytes, 2, responseBytes, 0, responseBytes.Length);
             return responseBytes;
         }
 
-        private void LoadAddress(IMemory memory, int addr)
+        public override void LoadAddress(IMemory memory, int offset)
         {
-            logger.Trace("Sending load address request: {0}.", addr);
-            addr = addr >> 1;
-            Send(new LoadAddressRequest(memory, addr));
+            logger.Trace("Sending load address request: {0}.", offset);
+            offset = offset >> 1;
+            Send(new LoadAddressRequest(memory, offset));
             var response = Receive<LoadAddressResponse>();
             if (response == null || !response.Succeeded)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to execute load address!");
         }
 
@@ -290,7 +282,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new GetParameterRequest(param));
             var response = Receive<GetParameterResponse>();
             if (response == null || !response.IsSuccess)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format("Retrieving parameter '{0}' failed!", param));
             return response.ParameterValue;
         }

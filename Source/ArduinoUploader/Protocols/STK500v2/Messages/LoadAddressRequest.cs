@@ -4,7 +4,7 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class LoadAddressRequest : Request
     {
-        public LoadAddressRequest(IMemory memory, int addr)
+        internal LoadAddressRequest(IMemory memory, int addr)
         {
             var modifier = memory.Type == MemoryType.FLASH ? 0x80 : 0x00;
             Bytes = new[]

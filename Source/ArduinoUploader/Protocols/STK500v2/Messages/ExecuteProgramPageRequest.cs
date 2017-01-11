@@ -6,7 +6,7 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class ExecuteProgramPageRequest : Request
     {
-        public ExecuteProgramPageRequest(byte writeCmd, IMemory memory, IReadOnlyCollection<byte> data)
+        internal ExecuteProgramPageRequest(byte writeCmd, IMemory memory, IReadOnlyCollection<byte> data)
         {
             var len = data.Count;
             const byte mode = 0xc1;

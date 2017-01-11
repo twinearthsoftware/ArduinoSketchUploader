@@ -3,6 +3,7 @@ using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Protocols;
 using NLog;
+using RJCP.IO.Ports;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
@@ -10,12 +11,56 @@ namespace ArduinoUploader.BootloaderProgrammers
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        protected UploaderSerialPort SerialPort { get; private set; }
+        protected SerialPortConfig serialPortConfig;
+        protected SerialPortStream SerialPort { get; set; }
 
-        protected SerialPortBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
+        protected SerialPortBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
             : base(mcu)
         {
-            SerialPort = serialPort;
+            this.serialPortConfig = serialPortConfig;
+        }
+
+        public override void Open()
+        {
+            var portName = serialPortConfig.PortName;
+            var baudRate = serialPortConfig.BaudRate;
+            logger.Info("Opening serial port {0} - baudrate {1}", serialPortConfig.PortName, serialPortConfig.BaudRate);
+
+            SerialPort = new SerialPortStream(portName, baudRate)
+            {
+                ReadTimeout = serialPortConfig.ReadTimeOut,
+                WriteTimeout = serialPortConfig.WriteTimeOut
+            };
+            try
+            {
+                SerialPort.Open();
+            }
+            catch (ObjectDisposedException ex)
+            {
+                UploaderLogger.LogErrorAndQuit(
+                    string.Format("Unable to open serial port {0} - {1}.", portName, ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                UploaderLogger.LogErrorAndQuit(
+                    string.Format("Unable to open serial port {0} - {1}.", portName, ex.Message));
+            }
+            logger.Trace("Opened serial port {0} with baud rate {1}!", portName, baudRate);
+        }
+
+        public override void Close()
+        {
+            logger.Info("Closing serial port...");
+            SerialPort.DtrEnable = false;
+            SerialPort.RtsEnable = false;
+            try
+            {
+                SerialPort.Close();
+            }
+            catch (Exception)
+            {
+                // Ignore
+            }
         }
 
         protected void ToggleDtrRts(int wait1, int wait2, bool invert = false)
@@ -41,6 +86,13 @@ namespace ArduinoUploader.BootloaderProgrammers
                 "Sending {0} bytes: {1}{2}", 
                 length, Environment.NewLine, BitConverter.ToString(bytes));
             SerialPort.Write(bytes, 0, length);
+        }
+
+        protected TResponse Receive<TResponse>(int length = 1) where TResponse : Response, new()
+        {
+            var bytes = ReceiveNext(length);
+            if (bytes == null) return null;
+            return new TResponse { Bytes = bytes };
         }
 
         protected int ReceiveNext()

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Ports;
 using System.Linq;
 using ArduinoUploader.BootloaderProgrammers;
 using ArduinoUploader.Hardware;
 using IntelHexFormatReader;
 using IntelHexFormatReader.Model;
 using NLog;
+using RJCP.IO.Ports;
 
 namespace ArduinoUploader
 {
@@ -15,9 +15,6 @@ namespace ArduinoUploader
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly ArduinoSketchUploaderOptions options;
-        private UploaderSerialPort serialPort;
-
-        private const int SerialPortTimeOut = 1000;
 
         public ArduinoSketchUploader(ArduinoSketchUploaderOptions options)
         {
@@ -37,12 +34,12 @@ namespace ArduinoUploader
         {
             var serialPortName = options.PortName;
 
-            var ports = SerialPort.GetPortNames();
+            var ports = SerialPortStream.GetPortNames();
 
             if (!ports.Any() || ports.Distinct().SingleOrDefault(
                 x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
             {
-                UploaderLogger.LogAndThrowError<ArgumentException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format("Specified COM port name '{0}' is not valid.", serialPortName));
             }
 
@@ -50,42 +47,48 @@ namespace ArduinoUploader
             SerialPortBootloaderProgrammer programmer = null;
 
             IMCU mcu = null;
+            SerialPortConfig serialPortConfig;
 
             switch (options.ArduinoModel)
             {
                 case ArduinoModel.Mega2560:
                 {
                     mcu = new ATMega2560();
-                    serialPort = new UploaderSerialPort(serialPortName, 115200);
-                    programmer = new WiringBootloaderProgrammer(serialPort, mcu);
+                    serialPortConfig = new SerialPortConfig(serialPortName, 115200);
+                    programmer = new WiringBootloaderProgrammer(serialPortConfig, mcu);
+                    break;
+                }
+                case ArduinoModel.Micro:
+                {
+                    mcu = new ATMega32U4();
+                    serialPortConfig = new SerialPortConfig(serialPortName, 57600);
+                    programmer = new ButterflyBootloaderProgrammer(serialPortConfig, mcu);
                     break;
                 }
                 case ArduinoModel.NanoR3:
                 {
                     mcu = new ATMega328P();
-                    serialPort = new UploaderSerialPort(serialPortName, 57600);
-                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
+                    serialPortConfig = new SerialPortConfig(serialPortName, 57600);
+                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
                     break;
                 }
                 case ArduinoModel.UnoR3:
                 {
                     mcu = new ATMega328P();
-                    serialPort = new UploaderSerialPort(serialPortName, 115200);
-                    programmer = new OptibootBootloaderProgrammer(serialPort, mcu);
+                    serialPortConfig = new SerialPortConfig(serialPortName, 115200);
+                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
                     break;
                 }
                 default:
                 {
-                    UploaderLogger.LogAndThrowError<IOException>(
+                    UploaderLogger.LogErrorAndQuit(
                         string.Format("Unsupported model: {0}!", options.ArduinoModel));
                     break;
                 }
             }
+
             try
             {
-                TryToOpenSerialPort();
-                ConfigureSerialPort();
-
                 programmer.Open();
 
                 logger.Info("Establishing sync...");
@@ -108,11 +111,13 @@ namespace ArduinoUploader
                 programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size));
                 logger.Info("Device programmed.");
 
-                programmer.Close();
+                logger.Info("Leaving programming mode...");
+                programmer.LeaveProgrammingMode();
+                logger.Info("Left programming mode!");
             }
             finally
             {
-                CloseSerialPort();
+                programmer.Close();
             }
             logger.Info("All done, shutting down!");
         }
@@ -128,55 +133,9 @@ namespace ArduinoUploader
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogAndThrowError<IOException>(ex.Message);
+                UploaderLogger.LogErrorAndQuit(ex.Message);
             }
             return null;
-        }
-
-        private void TryToOpenSerialPort()
-        {
-            logger.Trace("Opening serial port...");
-            try
-            {
-                serialPort.Open();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                UploaderLogger.LogAndThrowError<UnauthorizedAccessException>(
-                    "Access to the port is denied. This or another process is currently using this port.");
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                UploaderLogger.LogAndThrowError<ArgumentOutOfRangeException>(
-                    "The configuration parameters for the port are invalid (e.g. baud rate, parity, databits).");
-            }
-            catch (IOException)
-            {
-                UploaderLogger.LogAndThrowError<IOException>("The port is in an invalid state.");
-            }
-            logger.Trace("Opened serial port {0} with baud rate {1}!", serialPort.PortName, serialPort.BaudRate);
-        }
-
-        private void CloseSerialPort()
-        {
-            logger.Info("Closing serial port...");
-            serialPort.DtrEnable = false;
-            serialPort.RtsEnable = false;
-            try
-            {
-                serialPort.Close();
-            }
-            catch (Exception)
-            {
-                // Ignore
-            }
-        }
-
-        private void ConfigureSerialPort()
-        {
-            logger.Trace("Setting Read/Write Timeout on serial port to '{0}'.", SerialPortTimeOut);
-            serialPort.ReadTimeout = SerialPortTimeOut;
-            serialPort.WriteTimeout = SerialPortTimeOut;
         }
 
         #endregion

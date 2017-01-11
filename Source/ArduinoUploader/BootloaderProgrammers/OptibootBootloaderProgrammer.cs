@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
 using ArduinoUploader.Protocols;
@@ -14,8 +13,8 @@ namespace ArduinoUploader.BootloaderProgrammers
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const string EXPECTED_DEVICE_SIGNATURE = "1e-95-0f";
 
-        internal OptibootBootloaderProgrammer(UploaderSerialPort serialPort, IMCU mcu)
-            : base(serialPort, mcu)
+        internal OptibootBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
+            : base(serialPortConfig, mcu)
         {
         }
 
@@ -36,25 +35,15 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
 
             if (i == MaxSyncRetries)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Unable to establish sync after {0} retries.", MaxSyncRetries));
 
             var nextByte = ReceiveNext();
 
             if (nextByte != Constants.RESP_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to establish sync.");
-        }
-
-        protected TResponse Receive<TResponse>(int length = 1) where TResponse : Response
-        {
-            var bytes = ReceiveNext(length);
-            if (bytes == null) return null;
-
-            var result = (TResponse) Activator.CreateInstance(typeof(TResponse));
-            result.Bytes = bytes;
-            return result;
         }
 
         protected void SendWithSyncRetry(IRequest request)
@@ -72,7 +61,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 break;
             }
             if (nextByte != Constants.RESP_STK_INSYNC)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Unable to aqcuire sync in SendWithSyncRetry for request of type {0}!", 
                         request.GetType()));
@@ -84,12 +73,12 @@ namespace ArduinoUploader.BootloaderProgrammers
             SendWithSyncRetry(new ReadSignatureRequest());
             var response = Receive<ReadSignatureResponse>(4);
             if (response == null || !response.IsCorrectResponse)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to check device signature!");
 
             var signature = response.Signature;
             if (signature[0] != 0x1e || signature[1] != 0x95 || signature[2] != 0x0f)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Unexpected device signature - found '{0}'- expected '{1}'.",
                         BitConverter.ToString(signature), 
@@ -108,7 +97,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var nextByte = ReceiveNext();
 
             if (nextByte != Constants.RESP_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to set device programming parameters!");
         }
 
@@ -118,7 +107,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
             if (nextByte == Constants.RESP_STK_NODEVICE || nextByte == Constants.RESP_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to enable programming mode on the device!");
         }
 
@@ -128,7 +117,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
             if (nextByte == Constants.RESP_STK_NODEVICE || nextByte == Constants.RESP_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     "Unable to leave programming mode on the device!");
         }
 
@@ -141,11 +130,11 @@ namespace ArduinoUploader.BootloaderProgrammers
             nextByte = ReceiveNext();
 
             if (nextByte == Constants.RESP_STK_Failed)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format("Retrieving parameter '{0}' failed!", param));
 
             if (nextByte != Constants.RESP_STK_OK)
-                UploaderLogger.LogAndThrowError<IOException>(
+                UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "General protocol error while retrieving parameter '{0}'.", 
                         param));
@@ -155,41 +144,35 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void ExecuteWritePage(IMemory memory, int offset, byte[] bytes)
         {
-            LoadAddress(offset);
             SendWithSyncRetry(new ExecuteProgramPageRequest(memory, bytes));
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
-            UploaderLogger.LogAndThrowError<IOException>(
+            UploaderLogger.LogErrorAndQuit(
                 string.Format("Write at offset {0} failed!", offset));
         }
 
-        public override byte[] ExecuteReadPage(IMemory memory, int offset)
+        public override byte[] ExecuteReadPage(IMemory memory)
         {
             var pageSize = memory.PageSize;
-            LoadAddress(offset);
             SendWithSyncRetry(new ExecuteReadPageRequest(memory.Type, pageSize));
             var bytes = ReceiveNext(pageSize);
             if (bytes == null)
-            {
-                UploaderLogger.LogAndThrowError<IOException>(
-                    string.Format("Read at offset {0} failed!", offset));                
-            }
+                UploaderLogger.LogErrorAndQuit("Execute read page failed!");                
 
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return bytes;
-            UploaderLogger.LogAndThrowError<IOException>(
-                string.Format("Read at offset {0} failed!", offset));
+            UploaderLogger.LogErrorAndQuit("Execute read page failed!");
             return null;
         }
 
-        private void LoadAddress(int addr)
+        public override void LoadAddress(IMemory memory, int addr)
         {
             logger.Trace("Sending load address request: {0}.", addr);
             addr = addr >> 1;
             SendWithSyncRetry(new LoadAddressRequest(addr));
             var result = ReceiveNext();
             if (result == Constants.RESP_STK_OK) return;
-            UploaderLogger.LogAndThrowError<IOException>(string.Format("LoadAddress failed with result {0}!", result));
+            UploaderLogger.LogErrorAndQuit(string.Format("LoadAddress failed with result {0}!", result));
         }
     }
 }

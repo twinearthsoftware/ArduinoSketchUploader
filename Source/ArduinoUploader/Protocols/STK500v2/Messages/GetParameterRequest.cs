@@ -2,7 +2,7 @@
 {
     internal class GetParameterRequest : Request
     {
-        public GetParameterRequest(byte param)
+        internal GetParameterRequest(byte param)
         {
             Bytes = new[]
             {

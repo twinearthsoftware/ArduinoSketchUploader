@@ -2,7 +2,7 @@
 {
     internal class GetSyncRequest : Request
     {
-        public GetSyncRequest()
+        internal GetSyncRequest()
         {
             Bytes = new[]
             {

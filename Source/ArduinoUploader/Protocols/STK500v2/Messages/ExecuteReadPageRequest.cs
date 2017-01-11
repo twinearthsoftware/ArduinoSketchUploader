@@ -4,7 +4,7 @@ namespace ArduinoUploader.Protocols.STK500v2.Messages
 {
     internal class ExecuteReadPageRequest : Request
     {
-        public ExecuteReadPageRequest(byte readCmd, IMemory memory)
+        internal ExecuteReadPageRequest(byte readCmd, IMemory memory)
         {
             var pageSize = memory.PageSize;
             var cmdByte = memory.CmdBytesRead[0];
