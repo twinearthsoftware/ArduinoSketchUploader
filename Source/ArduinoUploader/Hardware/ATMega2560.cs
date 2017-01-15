@@ -20,13 +20,7 @@ namespace ArduinoUploader.Hardware
 
         public override IDictionary<Command, byte[]> CommandBytes
         {
-            get
-            {
-                return new Dictionary<Command, byte[]>
-                {
-                    { Command.PGM_ENABLE, new byte[] { 0xac, 0x53, 0x00, 0x00 } }
-                };
-            }
+            get { return new Dictionary<Command, byte[]>(); }
         }
 
         public override IList<IMemory> Memory
