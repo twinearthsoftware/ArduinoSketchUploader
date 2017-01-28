@@ -29,7 +29,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             SerialPort = new SerialPortStream(portName, baudRate)
             {
                 ReadTimeout = serialPortConfig.ReadTimeOut,
-                WriteTimeout = serialPortConfig.WriteTimeOut
+                WriteTimeout = serialPortConfig.WriteTimeOut,
+                DtrEnable = true // This means the Arduino will reset the moment we open the serial connection.
             };
             try
             {

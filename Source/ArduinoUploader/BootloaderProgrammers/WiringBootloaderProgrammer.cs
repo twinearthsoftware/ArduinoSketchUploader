@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
 using ArduinoUploader.Protocols;
@@ -47,6 +48,14 @@ namespace ArduinoUploader.BootloaderProgrammers
         public WiringBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
             : base(serialPortConfig, mcu)
         {
+        }
+
+        public override void Open()
+        {
+            base.Open();
+            // The Uno (and Nano R3) will have auto-reset because DTR is true when opening the serial connection, 
+            // so we just wait a small amount of time for it to come back.
+            Thread.Sleep(50);
         }
 
         protected override void Reset()
