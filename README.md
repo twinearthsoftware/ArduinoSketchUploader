@@ -19,13 +19,13 @@ The library has been tested with the following configurations:
 
 ## How to use the command line application ##
 
-[Download the latest Windows binaries here (.zip file, version 2.2.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.2.0/ArduinoSketchUploader-2.2.0.zip)
+[Download the latest Windows binaries here (.zip file, version 2.3.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.3.0/ArduinoSketchUploader-2.3.0.zip)
 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
 ```
-ArduinoSketchUploader 2.2.0.0
-Copyright c  2016
+ArduinoSketchUploader 2.3.0.0
+Copyright c  2017
 
 ERROR(S):
   -f/--file required option is missing.
