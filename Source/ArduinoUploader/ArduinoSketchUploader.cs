@@ -51,6 +51,13 @@ namespace ArduinoUploader
 
             switch (options.ArduinoModel)
             {
+                case ArduinoModel.Mega1284:
+                {
+                    mcu = new ATMega1284();
+                    serialPortConfig = new SerialPortConfig(serialPortName, 115200);
+                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
+                    break;
+                }
                 case ArduinoModel.Mega2560:
                 {
                     mcu = new ATMega2560();
