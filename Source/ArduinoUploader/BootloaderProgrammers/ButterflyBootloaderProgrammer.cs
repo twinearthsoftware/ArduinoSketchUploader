@@ -15,7 +15,6 @@ namespace ArduinoUploader.BootloaderProgrammers
     internal class ButterflyBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private const string EXPECTED_DEVICE_SIGNATURE = "1e-95-87";
         private const int VIRTUAL_COM_CREATION_TIMEOUT = 1000;
         private string[] originalPorts;
 
@@ -88,7 +87,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void CheckDeviceSignature()
         {
-            logger.Debug("Expecting to find '{0}'...", EXPECTED_DEVICE_SIGNATURE);
+            logger.Debug("Expecting to find '{0}'...", MCU.DeviceSignature);
             Send(new ReadSignatureBytesRequest());
             var response = Receive<ReadSignatureBytesResponse>(3);
             if (response == null)
@@ -96,12 +95,12 @@ namespace ArduinoUploader.BootloaderProgrammers
                     "Unable to check device signature!");
 
             var signature = response.Signature;
-            if (signature[0] != 0x1e || signature[1] != 0x95 || signature[2] != 0x87)
+            if (BitConverter.ToString(signature) != MCU.DeviceSignature)
                 UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Unexpected device signature - found '{0}'- expected '{1}'.",
                         BitConverter.ToString(signature),
-                        EXPECTED_DEVICE_SIGNATURE));
+                        MCU.DeviceSignature));
         }
 
         public override void InitializeDevice()

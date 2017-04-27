@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
@@ -21,6 +22,8 @@ namespace ArduinoUploader.Hardware
         public override byte ByteDelay { get { return 0; } }
         public override byte PollIndex { get { return 3; } }
         public override byte PollValue { get { return 0x53; } }
+
+        public override string DeviceSignature { get { return "1E-95-0F"; } }
 
         public override IDictionary<Command, byte[]> CommandBytes
         {
