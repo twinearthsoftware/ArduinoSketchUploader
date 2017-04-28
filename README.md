@@ -8,8 +8,9 @@ This repository contains a .NET library and a corresponding Windows command line
 
 The library has been tested with the following configurations:
 
-| Arduino Model | MCU           | Bootloader protocol |
-| ------------- |:-------------:| -------------------:|
+| Arduino Model | MCU           | Bootloader protocol                                |
+| ------------- |:-------------:| --------------------------------------------------:|
+| Mega 1284     | ATMega1284    | [STK500v1](/Documentation/STK500v1.pdf)            |
 | Mega 2560     | ATMega2560    | [STK500v2](/Documentation/STK500v2.pdf)            |
 | Micro         | ATMega32U4    | [AVR109](/Documentation/AVR109.pdf)                |
 | Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
@@ -17,14 +18,16 @@ The library has been tested with the following configurations:
 
 > *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be relatively straightforward to add support (for most).*
 
+> Support for Mega 1284 was added by [https://github.com/sijk](https://github.com/sijk), thanks!
+
 ## How to use the command line application ##
 
-[Download the latest Windows binaries here (.zip file, version 2.3.1).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.3.1/ArduinoSketchUploader-2.3.1.zip)
+[Download the latest Windows binaries here (.zip file, version 2.4.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.4.0/ArduinoSketchUploader-2.4.0.zip)
 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
 ```
-ArduinoSketchUploader 2.3.1.0
+ArduinoSketchUploader 2.4.0.0
 Copyright c  2017
 
 ERROR(S):
@@ -40,7 +43,7 @@ ERROR(S):
                  (e.g. 'COM1', 'COM2', 'COM3'...).
 
   -m, --model    Required. Arduino model. Valid parameters are any of the
-                 following: [Mega2560, Micro, NanoR3, UnoR3].
+                 following: [Mega1284, Mega2560, Micro, NanoR3, UnoR3].
 
   --help         Display this help screen.
 ```
