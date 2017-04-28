@@ -39,5 +39,7 @@ namespace ArduinoUploader.Hardware
         }
 
         public abstract IList<IMemory> Memory { get; }
+
+        public abstract string DeviceSignature { get; }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
-    internal class ATMega2560 : MCU
+    internal class ATMega1284 : MCU
     {
-        public override byte DeviceCode { get { return 0xb2; } }
+        public override byte DeviceCode { get { return 0x82; } }
         public override byte DeviceRevision { get { return 0; } }
         public override byte LockBytes { get { return 1; } }
         public override byte FuseBytes { get { return 3; } }
@@ -19,7 +18,7 @@ namespace ArduinoUploader.Hardware
         public override byte PollIndex { get { return 3; } }
         public override byte PollValue { get { return 0x53; } }
 
-        public override string DeviceSignature { get { return "AVRISP_2"; } }
+        public override string DeviceSignature { get { return "1E-97-06"; } }
 
         public override IDictionary<Command, byte[]> CommandBytes
         {
@@ -40,10 +39,10 @@ namespace ArduinoUploader.Hardware
                 {
                     new FlashMemory()
                     {
-                        Size = 256 * 1024,
+                        Size = 128 * 1024,
                         PageSize = 256,
-                        PollVal1 = 0x00,
-                        PollVal2 = 0x00,
+                        PollVal1 = 0xFF,
+                        PollVal2 = 0xFF,
                         Delay = 10,
                         CmdBytesRead = new byte[] { 0x20, 0x00, 0x00 },
                         CmdBytesWrite = new byte[] { 0x40, 0x4c, 0x00 }
@@ -51,8 +50,8 @@ namespace ArduinoUploader.Hardware
                     new EEPROMMemory()
                     {
                         Size = 4 * 1024,
-                        PollVal1 = 0x00,
-                        PollVal2 = 0x00,
+                        PollVal1 = 0xFF,
+                        PollVal2 = 0xFF,
                         Delay = 10,
                         CmdBytesRead = new byte[] { 0xa0, 0x00, 0x00 },
                         CmdBytesWrite = new byte[] { 0xc1, 0xc2, 0x00 }

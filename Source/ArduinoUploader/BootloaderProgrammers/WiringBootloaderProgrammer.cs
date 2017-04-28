@@ -18,7 +18,6 @@ namespace ArduinoUploader.BootloaderProgrammers
     internal class WiringBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private const string EXPECTED_DEVICE_SIGNATURE = "AVRISP_2";
         private const string STK500v2_CORRUPT_WRAPPER = "STK500V2 wrapper corrupted ({0})!";
 
         private readonly IDictionary<MemoryType, byte> readCommands = new Dictionary<MemoryType, byte>()
@@ -205,12 +204,12 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void CheckDeviceSignature()
         {
-            logger.Debug("Expecting to find '{0}'...", EXPECTED_DEVICE_SIGNATURE);
+            logger.Debug("Expecting to find '{0}'...", MCU.DeviceSignature);
 
-            if (!deviceSignature.Equals(EXPECTED_DEVICE_SIGNATURE))
+            if (!deviceSignature.Equals(MCU.DeviceSignature))
                 UploaderLogger.LogErrorAndQuit(
                     string.Format("Unexpected device signature - found '{0}'- expected '{1}'.",
-                        deviceSignature, EXPECTED_DEVICE_SIGNATURE));
+                        deviceSignature, MCU.DeviceSignature));
         }
 
         public override void InitializeDevice()

@@ -12,7 +12,6 @@ namespace ArduinoUploader.BootloaderProgrammers
     internal class OptibootBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private const string EXPECTED_DEVICE_SIGNATURE = "1e-95-0f";
 
         internal OptibootBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
             : base(serialPortConfig, mcu)
@@ -78,7 +77,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void CheckDeviceSignature()
         {
-            logger.Debug("Expecting to find '{0}'...", EXPECTED_DEVICE_SIGNATURE);
+            logger.Debug("Expecting to find '{0}'...", MCU.DeviceSignature);
             SendWithSyncRetry(new ReadSignatureRequest());
             var response = Receive<ReadSignatureResponse>(4);
             if (response == null || !response.IsCorrectResponse)
@@ -86,12 +85,12 @@ namespace ArduinoUploader.BootloaderProgrammers
                     "Unable to check device signature!");
 
             var signature = response.Signature;
-            if (signature[0] != 0x1e || signature[1] != 0x95 || signature[2] != 0x0f)
+            if (BitConverter.ToString(signature) != MCU.DeviceSignature)
                 UploaderLogger.LogErrorAndQuit(
                     string.Format(
                         "Unexpected device signature - found '{0}'- expected '{1}'.",
                         BitConverter.ToString(signature), 
-                        EXPECTED_DEVICE_SIGNATURE));
+                        MCU.DeviceSignature));
         }
 
         public override void InitializeDevice()

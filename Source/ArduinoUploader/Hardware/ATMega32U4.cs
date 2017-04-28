@@ -22,6 +22,8 @@ namespace ArduinoUploader.Hardware
         public override byte PollIndex { get { return 3; } }
         public override byte PollValue { get { return 0x53; } }
 
+        public override string DeviceSignature { get { return "1E-95-87"; } }
+
         public override IDictionary<Command, byte[]> CommandBytes
         {
             get { return new Dictionary<Command, byte[]>(); }

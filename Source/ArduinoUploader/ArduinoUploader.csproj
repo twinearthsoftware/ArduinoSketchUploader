@@ -52,6 +52,7 @@
     <Compile Include="ArduinoSketchUploader.cs" />
     <Compile Include="ArduinoSketchUploaderOptions.cs" />
     <Compile Include="BootloaderProgrammers\BootloaderProgrammer.cs" />
+    <Compile Include="Hardware\ATMega1284.cs" />
     <Compile Include="Hardware\ATMega2560.cs" />
     <Compile Include="Hardware\ATMega328P.cs" />
     <Compile Include="Hardware\ATMega32U4.cs" />
