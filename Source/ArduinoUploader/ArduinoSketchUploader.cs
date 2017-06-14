@@ -26,7 +26,15 @@ namespace ArduinoUploader
         {
             var hexFileName = options.FileName;
             logger.Info("Starting upload process for file '{0}'.", hexFileName);
-            var hexFileContents = File.ReadAllLines(hexFileName);
+            string[] hexFileContents = null;
+            try
+            {
+                hexFileContents = File.ReadAllLines(hexFileName);
+            }
+            catch (Exception ex)
+            {
+                UploaderLogger.LogErrorAndQuit(ex.Message);
+            }
             UploadSketch(hexFileContents);
         }
 
