@@ -31,9 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IntelHexFormatReader, Version=2.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="IntelHexFormatReader, Version=2.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\IntelHexFormatReader.2.2.1\lib\net452\IntelHexFormatReader.dll</HintPath>
+      <HintPath>..\packages\IntelHexFormatReader.2.2.3\lib\net45\IntelHexFormatReader.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -54,6 +54,7 @@
     <Compile Include="ArduinoSketchUploaderOptions.cs" />
     <Compile Include="BootloaderProgrammers\BootloaderProgrammer.cs" />
     <Compile Include="Hardware\ATMega1284.cs" />
+    <Compile Include="Hardware\ATMega168.cs" />
     <Compile Include="Hardware\ATMega2560.cs" />
     <Compile Include="Hardware\ATMega328P.cs" />
     <Compile Include="Hardware\ATMega32U4.cs" />

@@ -73,10 +73,18 @@ namespace ArduinoUploader
                     programmer = new WiringBootloaderProgrammer(serialPortConfig, mcu);
                     break;
                 }
+                case ArduinoModel.Leonardo:
                 case ArduinoModel.Micro:
                 {
                     mcu = new ATMega32U4();
                     serialPortConfig = new SerialPortConfig(serialPortName, 57600);
+                    programmer = new ButterflyBootloaderProgrammer(serialPortConfig, mcu);
+                    break;
+                }
+                case ArduinoModel.NanoR2:
+                {
+                    mcu = new ATMega168();
+                    serialPortConfig = new SerialPortConfig(serialPortName, 19200);
                     programmer = new ButterflyBootloaderProgrammer(serialPortConfig, mcu);
                     break;
                 }

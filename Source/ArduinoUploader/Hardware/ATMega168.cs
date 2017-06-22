@@ -3,10 +3,14 @@ using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
-    internal class ATMega2560 : MCU
+    internal class ATMega168 : MCU
     {
-        public override byte DeviceCode { get { return 0xb2; } }
+        public override byte DeviceCode { get { return 0x86; } }
         public override byte DeviceRevision { get { return 0; } }
+        public override byte ProgType { get { return 0; } }
+        public override byte ParallelMode { get { return 1; } }
+        public override byte Polling { get { return 1; } }
+        public override byte SelfTimed { get { return 1; } }
         public override byte LockBytes { get { return 1; } }
         public override byte FuseBytes { get { return 3; } }
 
@@ -18,45 +22,33 @@ namespace ArduinoUploader.Hardware
         public override byte PollIndex { get { return 3; } }
         public override byte PollValue { get { return 0x53; } }
 
-        public override string DeviceSignature { get { return "AVRISP_2"; } }
+        public override string DeviceSignature { get { return "1E-94-06"; } }
 
         public override IDictionary<Command, byte[]> CommandBytes
         {
-            get
-            {
-                return new Dictionary<Command, byte[]>
-                {
-                    { Command.PGM_ENABLE, new byte[] { 0xac, 0x53, 0x00, 0x00 } }
-                };
-            }
+            get { return new Dictionary<Command, byte[]>(); }
         }
 
         public override IList<IMemory> Memory
         {
-            get 
-            { 
+            get
+            {
                 return new List<IMemory>()
                 {
                     new FlashMemory()
                     {
-                        Size = 256 * 1024,
-                        PageSize = 256,
-                        PollVal1 = 0x00,
-                        PollVal2 = 0x00,
-                        Delay = 10,
-                        CmdBytesRead = new byte[] { 0x20, 0x00, 0x00 },
-                        CmdBytesWrite = new byte[] { 0x40, 0x4c, 0x00 }
+                        Size = 16 * 1024,
+                        PageSize = 128,
+                        PollVal1 = 0xff,
+                        PollVal2 = 0xff
                     },
                     new EEPROMMemory()
                     {
-                        Size = 4 * 1024,
-                        PollVal1 = 0x00,
-                        PollVal2 = 0x00,
-                        Delay = 10,
-                        CmdBytesRead = new byte[] { 0xa0, 0x00, 0x00 },
-                        CmdBytesWrite = new byte[] { 0xc1, 0xc2, 0x00 }
+                        Size = 512,
+                        PollVal1 = 0xff,
+                        PollVal2 = 0xff
                     }
-                }; 
+                };
             }
         }
     }

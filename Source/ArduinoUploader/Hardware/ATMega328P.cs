@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
@@ -18,7 +17,7 @@ namespace ArduinoUploader.Hardware
         public override byte Timeout { get { return 200; } }
         public override byte StabDelay { get { return 100; } }
         public override byte CmdExeDelay { get { return 25; } }
-        public override byte SynchLoops { get { return 32;  } }
+        public override byte SynchLoops { get { return 32; } }
         public override byte ByteDelay { get { return 0; } }
         public override byte PollIndex { get { return 3; } }
         public override byte PollValue { get { return 0x53; } }
