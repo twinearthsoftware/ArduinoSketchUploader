@@ -85,7 +85,7 @@ namespace ArduinoUploader
                 {
                     mcu = new ATMega168();
                     serialPortConfig = new SerialPortConfig(serialPortName, 19200);
-                    programmer = new ButterflyBootloaderProgrammer(serialPortConfig, mcu);
+                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
                     break;
                 }
                 case ArduinoModel.NanoR3:
