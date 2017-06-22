@@ -8,13 +8,15 @@ This repository contains a .NET library and a corresponding Windows command line
 
 The library has been tested with the following configurations:
 
-| Arduino Model | MCU           | Bootloader protocol                                |
-| ------------- |:-------------:| --------------------------------------------------:|
-| Mega 1284     | ATMega1284    | [STK500v1](/Documentation/STK500v1.pdf)            |
-| Mega 2560     | ATMega2560    | [STK500v2](/Documentation/STK500v2.pdf)            |
-| Micro         | ATMega32U4    | [AVR109](/Documentation/AVR109.pdf)                |
-| Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
-| Uno (R3)      | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            |
+| Arduino Model | MCU           | Bootloader protocol                                | Status |
+| ------------- |:-------------:| --------------------------------------------------:| ------:|
+| Leonardo      | ATMega32U4    | [AVR109](/Documentation/AVR109.pdf)                | Tested |
+| Mega 1284     | ATMega1284    | [STK500v1](/Documentation/STK500v1.pdf)            | Tested |
+| Mega 2560     | ATMega2560    | [STK500v2](/Documentation/STK500v2.pdf)            | Tested |
+| Micro         | ATMega32U4    | [AVR109](/Documentation/AVR109.pdf)                | Tested |
+| Nano (R2)     | ATMega168     |  [STK500v1](/Documentation/STK500v1.pdf)           | Untested |
+| Nano (R3)     | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            | Tested |
+| Uno (R3)      | ATMega328P    | [STK500v1](/Documentation/STK500v1.pdf)            | Tested |
 
 > *If you have a need for this library to run on another Arduino model, feel free to open an issue on GitHub, it should be relatively straightforward to add support (for most).*
 
