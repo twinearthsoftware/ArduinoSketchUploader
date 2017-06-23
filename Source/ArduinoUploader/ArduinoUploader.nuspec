@@ -15,7 +15,7 @@
     <tags>arduino upload serial avr flash hex</tags>
     <dependencies>
       <dependency id="IntelHexFormatReader" version="2.2.1" />
-	    <dependency id="Nlog" version="4.0.0" />
+      <dependency id="NLog" version="4.0.0" />
       <dependency id="SerialPortStream" version="2.1.2" />
     </dependencies>  
   </metadata>
