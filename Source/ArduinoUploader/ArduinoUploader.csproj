@@ -47,6 +47,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArduinoUploaderException.cs" />
     <Compile Include="BootloaderProgrammers\ButterflyBootloaderProgrammer.cs" />
     <Compile Include="BootloaderProgrammers\SerialPortConfig.cs" />
     <Compile Include="Hardware\ArduinoModel.cs" />

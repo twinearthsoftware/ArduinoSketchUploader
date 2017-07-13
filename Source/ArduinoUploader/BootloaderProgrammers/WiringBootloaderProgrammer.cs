@@ -197,7 +197,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
 
             if (i == MaxSyncRetries)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "Unable to establish sync after {0} retries.", MaxSyncRetries));
         }
@@ -207,7 +207,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             logger.Debug("Expecting to find '{0}'...", MCU.DeviceSignature);
 
             if (!deviceSignature.Equals(MCU.DeviceSignature))
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Unexpected device signature - found '{0}'- expected '{1}'.",
                         deviceSignature, MCU.DeviceSignature));
         }
@@ -227,7 +227,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new EnableProgrammingModeRequest(MCU));
             var response = Receive<EnableProgrammingModeResponse>();
             if (response == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to enable programming mode on the device!");
         }
 
@@ -236,7 +236,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new LeaveProgrammingModeRequest());
             var response = Receive<LeaveProgrammingModeResponse>();
             if (response == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to leave programming mode on the device!");
         }
 
@@ -253,7 +253,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             if (response == null || response.AnswerID != writeCmd
                 || response.Status != Constants.STATUS_CMD_OK)
             {
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "Executing write page request at offset {0} failed!", offset));
             }
@@ -266,7 +266,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new ExecuteReadPageRequest(readCmd, memory));
             var response = Receive<ExecuteReadPageResponse>();
             if (response == null || response.AnswerID != readCmd || response.Status != Constants.STATUS_CMD_OK)
-                UploaderLogger.LogErrorAndQuit("Executing read page request failed!");
+                UploaderLogger.LogErrorAndThrow("Executing read page request failed!");
 
             var responseBytes = new byte[memory.PageSize];
             Buffer.BlockCopy(response.Bytes, 2, responseBytes, 0, responseBytes.Length);
@@ -280,7 +280,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new LoadAddressRequest(memory, offset));
             var response = Receive<LoadAddressResponse>();
             if (response == null || !response.Succeeded)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to execute load address!");
         }
 
@@ -290,7 +290,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new GetParameterRequest(param));
             var response = Receive<GetParameterResponse>();
             if (response == null || !response.IsSuccess)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Retrieving parameter '{0}' failed!", param));
             return response.ParameterValue;
         }

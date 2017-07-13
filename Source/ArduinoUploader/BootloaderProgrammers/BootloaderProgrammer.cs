@@ -70,7 +70,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                     var verify = ExecuteReadPage(flashMem);
                     var succeeded = verify.SequenceEqual(bytesToCopy);
                     if (!succeeded)
-                        UploaderLogger.LogErrorAndQuit(
+                        UploaderLogger.LogErrorAndThrow(
                             "Difference encountered during verification, write failed!");
                 }
                 else

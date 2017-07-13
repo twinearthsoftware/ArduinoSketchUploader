@@ -38,12 +38,12 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
             catch (ObjectDisposedException ex)
             {
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Unable to open serial port {0} - {1}.", portName, ex.Message));
             }
             catch (InvalidOperationException ex)
             {
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Unable to open serial port {0} - {1}.", portName, ex.Message));
             }
             logger.Trace("Opened serial port {0} with baud rate {1}!", portName, baudRate);

@@ -1,4 +1,5 @@
-﻿using ArduinoUploader;
+﻿using System;
+using ArduinoUploader;
 
 namespace ArduinoSketchUploader
 {
@@ -7,6 +8,13 @@ namespace ArduinoSketchUploader
     /// </summary>
     internal class Program
     {
+        private enum StatusCodes
+        {
+            Success,
+            ArduinoUploaderException,
+            GeneralRuntimeException
+        }
+
         private static void Main(string[] args)
         {
             var commandLineOptions = new CommandLineOptions();
@@ -19,7 +27,20 @@ namespace ArduinoSketchUploader
                 ArduinoModel = commandLineOptions.ArduinoModel
             };
             var uploader = new ArduinoUploader.ArduinoSketchUploader(options);
-            uploader.UploadSketch();
+            try
+            {
+                uploader.UploadSketch();
+                Environment.Exit((int)StatusCodes.Success);
+            }
+            catch (ArduinoUploaderException)
+            {
+                Environment.Exit((int)StatusCodes.ArduinoUploaderException);
+            }
+            catch (Exception ex)
+            {
+                UploaderLogger.LogError(string.Format("Unexpected exception: {0}!", ex.Message), ex);
+                Environment.Exit((int)StatusCodes.GeneralRuntimeException);
+            }
         }
     }
 

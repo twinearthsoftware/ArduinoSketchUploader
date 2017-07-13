@@ -7,10 +7,15 @@ namespace ArduinoUploader
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        internal static void LogErrorAndQuit(string errorMessage) 
+        internal static void LogError(string errorMessage, Exception ex)
+        {
+            logger.Error(ex, errorMessage);
+        }
+
+        internal static void LogErrorAndThrow(string errorMessage) 
         {
             logger.Error(errorMessage);
-            Environment.Exit(1);
+            throw new ArduinoUploaderException(errorMessage);
         }
     }
 }

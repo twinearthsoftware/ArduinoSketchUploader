@@ -43,14 +43,14 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
 
             if (i == MaxSyncRetries)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "Unable to establish sync after {0} retries.", MaxSyncRetries));
 
             var nextByte = ReceiveNext();
 
             if (nextByte != Constants.RESP_STK_OK)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to establish sync.");
         }
 
@@ -69,7 +69,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                 break;
             }
             if (nextByte != Constants.RESP_STK_INSYNC)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "Unable to aqcuire sync in SendWithSyncRetry for request of type {0}!", 
                         request.GetType()));
@@ -81,12 +81,12 @@ namespace ArduinoUploader.BootloaderProgrammers
             SendWithSyncRetry(new ReadSignatureRequest());
             var response = Receive<ReadSignatureResponse>(4);
             if (response == null || !response.IsCorrectResponse)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to check device signature!");
 
             var signature = response.Signature;
             if (BitConverter.ToString(signature) != MCU.DeviceSignature)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "Unexpected device signature - found '{0}'- expected '{1}'.",
                         BitConverter.ToString(signature), 
@@ -105,7 +105,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var nextByte = ReceiveNext();
 
             if (nextByte != Constants.RESP_STK_OK)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to set device programming parameters!");
         }
 
@@ -115,7 +115,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
             if (nextByte == Constants.RESP_STK_NODEVICE || nextByte == Constants.RESP_STK_Failed)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to enable programming mode on the device!");
         }
 
@@ -125,7 +125,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
             if (nextByte == Constants.RESP_STK_NODEVICE || nextByte == Constants.RESP_STK_Failed)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to leave programming mode on the device!");
         }
 
@@ -138,11 +138,11 @@ namespace ArduinoUploader.BootloaderProgrammers
             nextByte = ReceiveNext();
 
             if (nextByte == Constants.RESP_STK_Failed)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Retrieving parameter '{0}' failed!", param));
 
             if (nextByte != Constants.RESP_STK_OK)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "General protocol error while retrieving parameter '{0}'.", 
                         param));
@@ -155,7 +155,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             SendWithSyncRetry(new ExecuteProgramPageRequest(memory, bytes));
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return;
-            UploaderLogger.LogErrorAndQuit(
+            UploaderLogger.LogErrorAndThrow(
                 string.Format("Write at offset {0} failed!", offset));
         }
 
@@ -165,11 +165,11 @@ namespace ArduinoUploader.BootloaderProgrammers
             SendWithSyncRetry(new ExecuteReadPageRequest(memory.Type, pageSize));
             var bytes = ReceiveNext(pageSize);
             if (bytes == null)
-                UploaderLogger.LogErrorAndQuit("Execute read page failed!");                
+                UploaderLogger.LogErrorAndThrow("Execute read page failed!");                
 
             var nextByte = ReceiveNext();
             if (nextByte == Constants.RESP_STK_OK) return bytes;
-            UploaderLogger.LogErrorAndQuit("Execute read page failed!");
+            UploaderLogger.LogErrorAndThrow("Execute read page failed!");
             return null;
         }
 
@@ -180,7 +180,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             SendWithSyncRetry(new LoadAddressRequest(addr));
             var result = ReceiveNext();
             if (result == Constants.RESP_STK_OK) return;
-            UploaderLogger.LogErrorAndQuit(string.Format("LoadAddress failed with result {0}!", result));
+            UploaderLogger.LogErrorAndThrow(string.Format("LoadAddress failed with result {0}!", result));
         }
     }
 }

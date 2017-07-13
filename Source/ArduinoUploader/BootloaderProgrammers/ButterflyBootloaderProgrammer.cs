@@ -48,7 +48,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Exception during close of the programmer: '{0}'.", 
                     ex.Message));
             }
@@ -60,7 +60,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var newPort = ports.Except(originalPorts).SingleOrDefault();
 
             if (newPort == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "No (unambiguous) virtual COM port detected (after {0}ms).",
                         VIRTUAL_COM_CREATION_TIMEOUT));
@@ -80,7 +80,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Unable to open serial port - {0}.", ex.Message));
             }
         }
@@ -91,12 +91,12 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new ReadSignatureBytesRequest());
             var response = Receive<ReadSignatureBytesResponse>(3);
             if (response == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to check device signature!");
 
             var signature = response.Signature;
             if (BitConverter.ToString(signature) != MCU.DeviceSignature)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format(
                         "Unexpected device signature - found '{0}'- expected '{1}'.",
                         BitConverter.ToString(signature),
@@ -108,7 +108,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new ReturnSoftwareIdentifierRequest());
             var softIdResponse = Receive<ReturnSoftwareIdentifierResponse>(7);
             if (softIdResponse == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to retrieve software identifier!");
 
             logger.Info("Software identifier: '{0}'",
@@ -117,7 +117,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new ReturnSoftwareVersionRequest());
             var softVersionResponse = Receive<ReturnSoftwareVersionResponse>(2);
             if (softVersionResponse == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to retrieve software version!");
 
             logger.Info("Software Version: {0}.{1}",
@@ -126,7 +126,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new ReturnProgrammerTypeRequest());
             var progTypeResponse = Receive<ReturnProgrammerTypeResponse>(1);
             if (progTypeResponse == null)
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     "Unable to retrieve programmer type!");
 
             logger.Info("Programmer type: {0}.", progTypeResponse.ProgrammerType);
@@ -134,9 +134,9 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new CheckBlockSupportRequest());
             var checkBlockResponse = Receive<CheckBlockSupportResponse>(3);
             if (checkBlockResponse == null) 
-                UploaderLogger.LogErrorAndQuit("Unable to retrieve block support!");
+                UploaderLogger.LogErrorAndThrow("Unable to retrieve block support!");
             if (!checkBlockResponse.HasBlockSupport)
-                UploaderLogger.LogErrorAndQuit("Block support is not supported!");
+                UploaderLogger.LogErrorAndThrow("Block support is not supported!");
 
             logger.Info("Block support - buffer size {0} bytes.", checkBlockResponse.BufferSize);
 
@@ -155,7 +155,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 
             var devCode = MCU.DeviceCode;
             if (!devices.Contains(devCode))
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Device {0} not in supported list of devices: {1}!",
                     devCode, supportedDevices));
 
@@ -163,7 +163,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new SelectDeviceTypeRequest(devCode));
             var response = ReceiveNext();
             if (response != Constants.CARRIAGE_RETURN)
-                UploaderLogger.LogErrorAndQuit("Unable to execute select device type command!");
+                UploaderLogger.LogErrorAndThrow("Unable to execute select device type command!");
         }
 
         public override void EnableProgrammingMode()
@@ -171,7 +171,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new EnterProgrammingModeRequest());
             var response = ReceiveNext();
             if (response != Constants.CARRIAGE_RETURN)
-                UploaderLogger.LogErrorAndQuit("Unable to enter programming mode!");
+                UploaderLogger.LogErrorAndThrow("Unable to enter programming mode!");
         }
 
         public override void LoadAddress(IMemory memory, int offset)
@@ -180,7 +180,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new SetAddressRequest(offset / 2));
             var response = ReceiveNext();
             if (response != Constants.CARRIAGE_RETURN)
-                UploaderLogger.LogErrorAndQuit("Unable to execute set address request!");
+                UploaderLogger.LogErrorAndThrow("Unable to execute set address request!");
         }
 
         public override byte[] ExecuteReadPage(IMemory memory)
@@ -199,7 +199,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new StartBlockLoadRequest(type, blockSize, bytes));
             var response = ReceiveNext();
             if (response != Constants.CARRIAGE_RETURN)
-                UploaderLogger.LogErrorAndQuit("Unable to execute write page!");
+                UploaderLogger.LogErrorAndThrow("Unable to execute write page!");
         }
 
         public override void LeaveProgrammingMode()
@@ -207,12 +207,12 @@ namespace ArduinoUploader.BootloaderProgrammers
             Send(new LeaveProgrammingModeRequest());
             var leaveProgModeResp = ReceiveNext();
             if (leaveProgModeResp != Constants.CARRIAGE_RETURN)
-                UploaderLogger.LogErrorAndQuit("Unable to leave programming mode!");
+                UploaderLogger.LogErrorAndThrow("Unable to leave programming mode!");
 
             Send(new ExitBootLoaderRequest());
             var exitBootloaderResp = ReceiveNext();
             if (exitBootloaderResp != Constants.CARRIAGE_RETURN)
-                UploaderLogger.LogErrorAndQuit("Unable to exit boot loader!");
+                UploaderLogger.LogErrorAndThrow("Unable to exit boot loader!");
         }
     }
 }

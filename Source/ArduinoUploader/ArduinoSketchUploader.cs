@@ -33,7 +33,7 @@ namespace ArduinoUploader
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogErrorAndQuit(ex.Message);
+                UploaderLogger.LogErrorAndThrow(ex.Message);
             }
             UploadSketch(hexFileContents);
         }
@@ -47,7 +47,7 @@ namespace ArduinoUploader
             if (!ports.Any() || ports.Distinct().SingleOrDefault(
                 x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
             {
-                UploaderLogger.LogErrorAndQuit(
+                UploaderLogger.LogErrorAndThrow(
                     string.Format("Specified COM port name '{0}' is not valid.", serialPortName));
             }
 
@@ -104,7 +104,7 @@ namespace ArduinoUploader
                 }
                 default:
                 {
-                    UploaderLogger.LogErrorAndQuit(
+                    UploaderLogger.LogErrorAndThrow(
                         string.Format("Unsupported model: {0}!", options.ArduinoModel));
                     break;
                 }
@@ -156,7 +156,7 @@ namespace ArduinoUploader
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogErrorAndQuit(ex.Message);
+                UploaderLogger.LogErrorAndThrow(ex.Message);
             }
             return null;
         }
