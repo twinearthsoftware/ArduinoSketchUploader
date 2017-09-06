@@ -15,11 +15,13 @@ namespace ArduinoUploader
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly ArduinoSketchUploaderOptions options;
+        private readonly IProgress<double> progress;
 
-        public ArduinoSketchUploader(ArduinoSketchUploaderOptions options)
+        public ArduinoSketchUploader(ArduinoSketchUploaderOptions options, IProgress<double> progress = null)
         {
             logger.Info("Starting ArduinoSketchUploader...");
             this.options = options;
+            this.progress = progress;
         }
 
         public void UploadSketch()
@@ -131,7 +133,7 @@ namespace ArduinoUploader
                 logger.Info("Programming mode enabled.");
 
                 logger.Info("Programming device...");
-                programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size));
+                programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size), progress);
                 logger.Info("Device programmed.");
 
                 logger.Info("Leaving programming mode...");

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
@@ -29,7 +30,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         public abstract void ExecuteWritePage(IMemory memory, int offset, byte[] bytes);
         public abstract byte[] ExecuteReadPage(IMemory memory);
 
-        public virtual void ProgramDevice(MemoryBlock memoryBlock)
+        public virtual void ProgramDevice(MemoryBlock memoryBlock, IProgress<double> progress = null)
         {
             var sizeToWrite = memoryBlock.HighestModifiedOffset + 1;
             var flashMem = MCU.Flash;
@@ -40,6 +41,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             int offset;
             for (offset = 0; offset < sizeToWrite; offset += pageSize)
             {
+                progress?.Report((double)offset / sizeToWrite);
+
                 var needsWrite = false;
                 for (var i = offset; i < offset + pageSize; i++)
                 {
