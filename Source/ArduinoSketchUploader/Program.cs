@@ -1,5 +1,6 @@
 ﻿using System;
 using ArduinoUploader;
+using NLog;
 
 namespace ArduinoSketchUploader
 {
@@ -8,6 +9,8 @@ namespace ArduinoSketchUploader
     /// </summary>
     internal class Program
     {
+        private static readonly Logger logger = LogManager.GetLogger("ArduinoSketchUploader");
+
         private enum StatusCodes
         {
             Success,
@@ -26,7 +29,8 @@ namespace ArduinoSketchUploader
                 FileName = commandLineOptions.FileName,
                 ArduinoModel = commandLineOptions.ArduinoModel
             };
-            var uploader = new ArduinoUploader.ArduinoSketchUploader(options);
+            var progress = new Progress<double>(p => logger.Info("{0:F1}%", p * 100));
+            var uploader = new ArduinoUploader.ArduinoSketchUploader(options, progress);
             try
             {
                 uploader.UploadSketch();
