@@ -2,16 +2,16 @@
 using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
+using ArduinoUploader.Logging;
 using ArduinoUploader.Protocols;
 using ArduinoUploader.Protocols.STK500v1;
 using ArduinoUploader.Protocols.STK500v1.Messages;
-using NLog;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
     internal class OptibootBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<OptibootBootloaderProgrammer>();
 
         internal OptibootBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
             : base(serialPortConfig, mcu)

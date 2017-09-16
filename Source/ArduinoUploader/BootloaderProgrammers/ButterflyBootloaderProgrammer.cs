@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
+using ArduinoUploader.Logging;
 using ArduinoUploader.Protocols.AVR109;
 using ArduinoUploader.Protocols.AVR109.Messages;
-using NLog;
 using RJCP.IO.Ports;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
     internal class ButterflyBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<ButterflyBootloaderProgrammer>();
         private const int VIRTUAL_COM_CREATION_TIMEOUT = 1000;
         private string[] originalPorts;
 
