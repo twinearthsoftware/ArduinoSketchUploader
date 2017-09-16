@@ -3,14 +3,14 @@ using System.Linq;
 using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
+using ArduinoUploader.Logging;
 using IntelHexFormatReader.Model;
-using NLog;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
     internal abstract class BootloaderProgrammer : IBootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<BootloaderProgrammer>();
 
         protected IMCU MCU { get; private set; }
 

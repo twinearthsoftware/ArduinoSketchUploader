@@ -1,11 +1,11 @@
 ﻿using System;
-using NLog;
+using ArduinoUploader.Logging;
 
 namespace ArduinoUploader
 {
     internal class UploaderLogger
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<UploaderLogger>();
 
         internal static void LogError(string errorMessage, Exception ex)
         {

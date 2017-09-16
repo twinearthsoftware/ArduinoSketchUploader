@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
+using ArduinoUploader.Logging;
 using ArduinoUploader.Protocols;
 using ArduinoUploader.Protocols.STK500v2;
 using ArduinoUploader.Protocols.STK500v2.Messages;
-using NLog;
 using EnableProgrammingModeRequest = ArduinoUploader.Protocols.STK500v2.Messages.EnableProgrammingModeRequest;
 using GetParameterRequest = ArduinoUploader.Protocols.STK500v2.Messages.GetParameterRequest;
 using GetSyncRequest = ArduinoUploader.Protocols.STK500v2.Messages.GetSyncRequest;
@@ -17,7 +17,7 @@ namespace ArduinoUploader.BootloaderProgrammers
 {
     internal class WiringBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<WiringBootloaderProgrammer>();
         private const string STK500v2_CORRUPT_WRAPPER = "STK500V2 wrapper corrupted ({0})!";
 
         private readonly IDictionary<MemoryType, byte> readCommands = new Dictionary<MemoryType, byte>()

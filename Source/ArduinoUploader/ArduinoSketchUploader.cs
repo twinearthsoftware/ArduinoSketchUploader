@@ -4,16 +4,16 @@ using System.IO;
 using System.Linq;
 using ArduinoUploader.BootloaderProgrammers;
 using ArduinoUploader.Hardware;
+using ArduinoUploader.Logging;
 using IntelHexFormatReader;
 using IntelHexFormatReader.Model;
-using NLog;
 using RJCP.IO.Ports;
 
 namespace ArduinoUploader
 {
     public class ArduinoSketchUploader
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<ArduinoSketchUploader>();
         private readonly ArduinoSketchUploaderOptions options;
         private readonly IProgress<double> progress;
 

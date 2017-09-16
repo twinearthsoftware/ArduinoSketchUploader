@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading;
 using ArduinoUploader.Hardware;
+using ArduinoUploader.Logging;
 using ArduinoUploader.Protocols;
-using NLog;
 using RJCP.IO.Ports;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
     internal abstract class SerialPortBootloaderProgrammer : BootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog logger = LogProvider.For<SerialPortBootloaderProgrammer>();
 
         protected SerialPortConfig serialPortConfig;
         protected SerialPortStream SerialPort { get; set; }
