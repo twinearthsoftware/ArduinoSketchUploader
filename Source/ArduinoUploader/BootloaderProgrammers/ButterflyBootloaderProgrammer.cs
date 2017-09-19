@@ -15,9 +15,10 @@ namespace ArduinoUploader.BootloaderProgrammers
     internal class ButterflyBootloaderProgrammer : ArduinoBootloaderProgrammer
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private const int VIRTUAL_COM_TIMEOUT_COUNTER = 10000;
         private const int VIRTUAL_COM_CREATION_TIMEOUT = 1000;
         private string[] originalPorts;
-
+        private string newPort;
         public ButterflyBootloaderProgrammer(SerialPortConfig serialPortConfig, IMCU mcu)
             : base(serialPortConfig, mcu)
         {
@@ -34,11 +35,34 @@ namespace ArduinoUploader.BootloaderProgrammers
             SerialPort = new SerialPortStream(currentPortName, 1200);
             SerialPort.Open();
             SerialPort.Close();
-            Thread.Sleep(VIRTUAL_COM_CREATION_TIMEOUT);
+            int listenerCounter = VIRTUAL_COM_TIMEOUT_COUNTER / 100;
+
+            logger.Info("Listening at virtual ports for programmer port (" + VIRTUAL_COM_TIMEOUT_COUNTER.ToString() + "ms timeout):");
+
+            for (int i = 0; i < listenerCounter; i++)
+            {
+                var ports = SerialPortStream.GetPortNames();
+                newPort = ports.Except(originalPorts).SingleOrDefault();
+
+                if (newPort == null)
+                {
+                    // do nothing
+                    // port not found, continue
+                    logger.Info("T+" + (i * 100).ToString() + " Port not found");
+                }
+                else
+                {
+                    logger.Info("T+" + (i * 100).ToString() + " Port found: " + newPort.ToString());
+                    break;
+                }
+
+                Thread.Sleep(100);
+            }
         }
 
         public override void Close()
         {
+
             try
             {
                 logger.Info("Closing...");
@@ -56,13 +80,11 @@ namespace ArduinoUploader.BootloaderProgrammers
 
         public override void EstablishSync()
         {
-            var ports = SerialPortStream.GetPortNames();
-            var newPort = ports.Except(originalPorts).SingleOrDefault();
 
             if (newPort == null)
                 UploaderLogger.LogErrorAndThrow(
                     string.Format(
-                        "No (unambiguous) virtual COM port detected (after {0}ms).",
+                        "No (unambiguous) virtual COM port detected (after " + VIRTUAL_COM_TIMEOUT_COUNTER + "ms).",
                         VIRTUAL_COM_CREATION_TIMEOUT));
 
             SerialPort = new SerialPortStream
