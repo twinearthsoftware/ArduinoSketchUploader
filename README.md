@@ -26,7 +26,7 @@ The library has been tested with the following configurations:
 
 [Download the latest Windows binaries here (.zip file, version 3.0.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v3.0.0/ArduinoSketchUploader-3.0.0.zip)
 
-When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
+When running *ArduinoSketchUploader.exe* without arguments, the application will document its usage:
 
 ```
 ArduinoSketchUploader 3.0.0.0
