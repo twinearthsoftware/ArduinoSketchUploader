@@ -24,25 +24,24 @@ The library has been tested with the following configurations:
 
 ## How to use the command line application ##
 
-[Download the latest Windows binaries here (.zip file, version 2.4.5).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v2.4.5/ArduinoSketchUploader-2.4.5.zip)
+[Download the latest Windows binaries here (.zip file, version 3.0.0).](https://github.com/christophediericx/ArduinoSketchUploader/releases/download/v3.0.0/ArduinoSketchUploader-3.0.0.zip)
 
 When running *ArduinoSketchUploader.exe* without arguments, the application will document it's usage:
 
 ```
-ArduinoSketchUploader 2.4.5.0
-Copyright c  2016
+ArduinoSketchUploader 3.0.0.0
+Copyright c  2017
 
 ERROR(S):
   -f/--file required option is missing.
-  -p/--port required option is missing.
   -m/--model required option is missing.
 
 
   -f, --file     Required. Path to the input file (in intel HEX format) which
                  is to be uploaded to the Arduino.
 
-  -p, --port     Required. Name of the COM port where the Arduino is attached
-                 (e.g. 'COM1', 'COM2', 'COM3'...).
+  -p, --port     Name of the COM port where the Arduino is attached (e.g.
+                 'COM1', 'COM2', 'COM3'...).
 
   -m, --model    Required. Arduino model. Valid parameters are any of the
                  following: [Leonardo, Mega1284, Mega2560, Micro, NanoR2,
@@ -50,10 +49,17 @@ ERROR(S):
 
   --help         Display this help screen.
 ```
+  
 A sample command line invocation (for a Mega2560 type Arduino attached to COM4):
 
 ```
-ArduinoSketchUploader.exe --file=C:\MyHexFile\myHexFile.hex --port=COM4 --model=Mega2560
+ArduinoSketchUploader.exe --file=C:\MyHexFiles\myHexFile.hex --port=COM4 --model=Mega2560
+```
+
+If only a single COM port is in use on the system (used by the attached Arduino), one can omit the port:
+
+```
+ArduinoSketchUploader.exe --file=C:\MyHexFiles\myHexFile.hex --model=UnoR3
 ```
 
 ## How to use the .NET library ##
@@ -82,7 +88,45 @@ var uploader = new ArduinoSketchUploader(
 uploader.UploadSketch();
 ```
 
+> As discussed above, one can try to auto-detect the COM port by omitting it.
+
 ## Logging ##
 
-The library emits log messages (in varying levels, from *Info* to *Trace*) via NLog. Hook up an NLog dependency (and configuration) in any project that uses *ArduinoSketchUploader* to automagically emit these messages as well.
+In earlier versions of the library, it emitted log messages through a dependency on `NLog`. From an architectural point of view, it is suboptimal to be forcing a particular logging framework from the library code.
+
+A simple `IArduinoUploaderLogger` interface is exposed from within the library. Implement this interface, and pass an instance into the ArduinoSketchUploader constructor if you want to consume log messages (in varying levels, from *Info* to *Trace*).
+
+Implementing the interface using `NLog` consists of nothing more than this:
+
+```
+private class NLogArduinoUploaderLogger : IArduinoUploaderLogger
+{
+    private static readonly Logger Logger = LogManager.GetLogger("ArduinoSketchUploader");
+
+    public void Error(string message, Exception exception)
+    {
+        Logger.Error(exception, message);
+    }
+
+    public void Warn(string message)
+    {
+        Logger.Warn(message);
+    }
+
+    public void Info(string message)
+    {
+        Logger.Info(message);
+    }
+
+    public void Debug(string message)
+    {
+        Logger.Debug(message);
+    }
+
+    public void Trace(string message)
+    {
+        Logger.Trace(message);
+    }
+}
+```
 
