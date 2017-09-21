@@ -1,5 +1,6 @@
 ﻿using System;
 using ArduinoUploader;
+using CommandLine;
 using NLog;
 
 namespace ArduinoSketchUploader
@@ -9,19 +10,41 @@ namespace ArduinoSketchUploader
     /// </summary>
     internal class Program
     {
-        private static readonly Logger logger = LogManager.GetLogger("ArduinoSketchUploader");
-
-        private enum StatusCodes
+        private class ArduinoSketchUploaderLogger : IArduinoUploaderLogger
         {
-            Success,
-            ArduinoUploaderException,
-            GeneralRuntimeException
+            private static readonly Logger Logger = LogManager.GetLogger("ArduinoSketchUploader");
+
+            public void Error(string message, Exception exception)
+            {
+                Logger.Error(exception, message);
+            }
+
+            public void Warn(string message)
+            {
+                Logger.Warn(message);
+            }
+
+            public void Info(string message)
+            {
+                Logger.Info(message);
+            }
+
+            public void Debug(string message)
+            {
+                Logger.Debug(message);
+            }
+
+            public void Trace(string message)
+            {
+                Logger.Trace(message);
+            }
         }
 
         private static void Main(string[] args)
         {
+            var logger = new ArduinoSketchUploaderLogger();
             var commandLineOptions = new CommandLineOptions();
-            if (!CommandLine.Parser.Default.ParseArguments(args, commandLineOptions)) return;
+            if (!Parser.Default.ParseArguments(args, commandLineOptions)) return;
 
             var options = new ArduinoSketchUploaderOptions
             {
@@ -29,23 +52,32 @@ namespace ArduinoSketchUploader
                 FileName = commandLineOptions.FileName,
                 ArduinoModel = commandLineOptions.ArduinoModel
             };
-            var progress = new Progress<double>(p => logger.Info("{0:F1}%", p * 100));
-            var uploader = new ArduinoUploader.ArduinoSketchUploader(options, progress);
+
+            var progress = new Progress<double>(
+                p => logger.Info($"Programming progress: {p * 100:F1}% ..."));
+
+            var uploader = new ArduinoUploader.ArduinoSketchUploader(options, logger, progress);
             try
             {
                 uploader.UploadSketch();
-                Environment.Exit((int)StatusCodes.Success);
+                Environment.Exit((int) StatusCodes.Success);
             }
             catch (ArduinoUploaderException)
             {
-                Environment.Exit((int)StatusCodes.ArduinoUploaderException);
+                Environment.Exit((int) StatusCodes.ArduinoUploaderException);
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogError(string.Format("Unexpected exception: {0}!", ex.Message), ex);
-                Environment.Exit((int)StatusCodes.GeneralRuntimeException);
+                logger.Error($"Unexpected exception: {ex.Message}!", ex);
+                Environment.Exit((int) StatusCodes.GeneralRuntimeException);
             }
         }
-    }
 
+        private enum StatusCodes
+        {
+            Success,
+            ArduinoUploaderException,
+            GeneralRuntimeException
+        }
+    }
 }

@@ -1,10 +1,7 @@
 ﻿namespace ArduinoUploader.Hardware.Memory
 {
-    internal class EEPROMMemory : Memory
+    internal class EepromMemory : Memory
     {
-        public override MemoryType Type
-        {
-            get { return MemoryType.EEPROM; }
-        }
+        public override MemoryType Type => MemoryType.Eeprom;
     }
 }

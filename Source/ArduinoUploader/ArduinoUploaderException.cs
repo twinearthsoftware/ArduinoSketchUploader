@@ -4,6 +4,8 @@ namespace ArduinoUploader
 {
     public class ArduinoUploaderException : Exception
     {
-        public ArduinoUploaderException(string message) : base(message) { }
+        public ArduinoUploaderException(string message) : base(message)
+        {
+        }
     }
 }

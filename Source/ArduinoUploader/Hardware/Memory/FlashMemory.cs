@@ -2,9 +2,6 @@
 {
     internal class FlashMemory : Memory
     {
-        public override MemoryType Type
-        {
-            get { return MemoryType.FLASH; }
-        }
+        public override MemoryType Type => MemoryType.Flash;
     }
 }

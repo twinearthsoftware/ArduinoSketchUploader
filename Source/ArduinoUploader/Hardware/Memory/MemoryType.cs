@@ -2,7 +2,7 @@
 {
     internal enum MemoryType
     {
-        FLASH,
-        EEPROM
+        Flash,
+        Eeprom
     }
 }

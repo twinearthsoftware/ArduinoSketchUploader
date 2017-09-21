@@ -4,19 +4,18 @@ using System.Threading;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
 using IntelHexFormatReader.Model;
-using NLog;
 
 namespace ArduinoUploader.BootloaderProgrammers
 {
     internal abstract class BootloaderProgrammer : IBootloaderProgrammer
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        protected IArduinoUploaderLogger Logger => ArduinoSketchUploader.Logger;
 
-        protected IMCU MCU { get; private set; }
+        protected IMcu Mcu { get; }
 
-        protected BootloaderProgrammer(IMCU mcu)
+        protected BootloaderProgrammer(IMcu mcu)
         {
-            MCU = mcu;
+            Mcu = mcu;
         }
 
         public abstract void Open();
@@ -33,15 +32,15 @@ namespace ArduinoUploader.BootloaderProgrammers
         public virtual void ProgramDevice(MemoryBlock memoryBlock, IProgress<double> progress = null)
         {
             var sizeToWrite = memoryBlock.HighestModifiedOffset + 1;
-            var flashMem = MCU.Flash;
+            var flashMem = Mcu.Flash;
             var pageSize = flashMem.PageSize;
-            logger.Info("Preparing to write {0} bytes...", sizeToWrite);
-            logger.Info("Flash page size: {0}.", pageSize);
+            Logger?.Info($"Preparing to write {sizeToWrite} bytes...");
+            Logger?.Info($"Flash page size: {pageSize}.");
 
             int offset;
             for (offset = 0; offset < sizeToWrite; offset += pageSize)
             {
-                progress?.Report((double)offset / sizeToWrite);
+                progress?.Report((double) offset / sizeToWrite);
 
                 var needsWrite = false;
                 for (var i = offset; i < offset + pageSize; i++)
@@ -52,36 +51,37 @@ namespace ArduinoUploader.BootloaderProgrammers
                 }
                 if (needsWrite)
                 {
-                    logger.Debug("Executing paged write @ address {0} (page size {1})...", offset, pageSize);
+                    Logger?.Debug($"Executing paged write @ address {offset} (page size {pageSize})...");
                     var bytesToCopy = memoryBlock.Cells.Skip(offset).Take(pageSize).Select(x => x.Value).ToArray();
 
-                    logger.Trace("Checking if bytes at offset {0} need to be overwritten...", offset);
+                    Logger?.Trace($"Checking if bytes at offset {offset} need to be overwritten...");
                     LoadAddress(flashMem, offset);
                     var bytesAlreadyPresent = ExecuteReadPage(flashMem);
                     if (bytesAlreadyPresent.SequenceEqual(bytesToCopy))
                     {
-                        logger.Trace("Bytes to be written are identical to bytes already present - skipping actual write!");
+                        Logger?.Trace(
+                            "Bytes to be written are identical to bytes already present - skipping actual write!");
                         continue;
                     }
-                    logger.Trace("Writing page at offset {0}.", offset);
+                    Logger?.Trace($"Writing page at offset {offset}.");
                     LoadAddress(flashMem, offset);
                     ExecuteWritePage(flashMem, offset, bytesToCopy);
 
-                    logger.Trace("Page written, now verifying...");
+                    Logger?.Trace("Page written, now verifying...");
                     Thread.Sleep(10);
                     LoadAddress(flashMem, offset);
                     var verify = ExecuteReadPage(flashMem);
                     var succeeded = verify.SequenceEqual(bytesToCopy);
                     if (!succeeded)
-                        UploaderLogger.LogErrorAndThrow(
+                        throw new ArduinoUploaderException(
                             "Difference encountered during verification, write failed!");
                 }
                 else
                 {
-                    logger.Trace("Skip writing page...");
+                    Logger?.Trace("Skip writing page...");
                 }
             }
-            logger.Info("{0} bytes written to flash memory!", sizeToWrite);
+            Logger?.Info($"{sizeToWrite} bytes written to flash memory!");
         }
     }
 }

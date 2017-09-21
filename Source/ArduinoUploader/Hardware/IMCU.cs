@@ -3,9 +3,11 @@ using ArduinoUploader.Hardware.Memory;
 
 namespace ArduinoUploader.Hardware
 {
-    internal interface IMCU
+    internal interface IMcu
     {
         byte DeviceCode { get; }
+        string DeviceSignature { get; }
+
         byte DeviceRevision { get; }
         byte ProgType { get; }
         byte ParallelMode { get; }
@@ -22,13 +24,11 @@ namespace ArduinoUploader.Hardware
         byte PollValue { get; }
         byte PollIndex { get; }
 
-        IDictionary<Command,byte[]> CommandBytes { get; }
-
-        IMemory Flash { get; }
-        IMemory EEPROM { get; }
+        IDictionary<Command, byte[]> CommandBytes { get; }
 
         IList<IMemory> Memory { get; }
 
-        string DeviceSignature { get; }
+        IMemory Flash { get; }
+        IMemory Eeprom { get; }
     }
 }

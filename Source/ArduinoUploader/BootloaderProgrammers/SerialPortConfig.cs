@@ -1,21 +1,35 @@
-﻿namespace ArduinoUploader.BootloaderProgrammers
+﻿using ArduinoUploader.BootloaderProgrammers.ResetBehavior;
+
+namespace ArduinoUploader.BootloaderProgrammers
 {
     internal class SerialPortConfig
     {
-        public string PortName { get; set; }
-        public int BaudRate { get; set; }
-        public int ReadTimeOut { get; set; }
-        public int WriteTimeOut { get; set; }
-
         private const int DefaultTimeout = 1000;
 
-        public SerialPortConfig(string portName, int baudRate, 
-            int readTimeout = DefaultTimeout, int writeTimeout = DefaultTimeout)
+        public SerialPortConfig(
+            string portName,
+            int baudRate,
+            IResetBehavior postOpenResetBehavior,
+            IResetBehavior closeResetAction,
+            int sleepAfterOpen = 0,
+            int readTimeout = DefaultTimeout,
+            int writeTimeout = DefaultTimeout)
         {
             PortName = portName;
             BaudRate = baudRate;
+            PostOpenResetBehavior = postOpenResetBehavior;
+            CloseResetAction = closeResetAction;
+            SleepAfterOpen = sleepAfterOpen;
             ReadTimeOut = readTimeout;
             WriteTimeOut = writeTimeout;
         }
+
+        public string PortName { get; set; }
+        public int BaudRate { get; set; }
+        public IResetBehavior PostOpenResetBehavior { get; set; }
+        public IResetBehavior CloseResetAction { get; set; }
+        public int SleepAfterOpen { get; set; }
+        public int ReadTimeOut { get; set; }
+        public int WriteTimeOut { get; set; }
     }
 }

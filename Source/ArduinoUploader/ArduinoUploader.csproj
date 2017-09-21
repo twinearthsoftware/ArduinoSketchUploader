@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,10 +36,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\IntelHexFormatReader.2.2.3\lib\net45\IntelHexFormatReader.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.4.4.10\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="RJCP.SerialPortStream, Version=2.1.2.0, Culture=neutral, PublicKeyToken=5f5e7b70c6a74deb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\SerialPortStream.2.1.2\lib\net45\RJCP.SerialPortStream.dll</HintPath>
@@ -48,8 +45,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArduinoUploaderException.cs" />
-    <Compile Include="BootloaderProgrammers\ButterflyBootloaderProgrammer.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\AVR109BootloaderProgrammer.cs" />
+    <Compile Include="BootloaderProgrammers\ResetBehavior\IResetBehavior.cs" />
+    <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThrough1200BpsBehavior.cs" />
+    <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThroughEnablingDtrBehavior.cs" />
+    <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThroughTogglingDtrRtsBehavior.cs" />
     <Compile Include="BootloaderProgrammers\SerialPortConfig.cs" />
+    <Compile Include="BootloaderProgrammers\WaitHelper.cs" />
     <Compile Include="Hardware\ArduinoModel.cs" />
     <Compile Include="ArduinoSketchUploader.cs" />
     <Compile Include="ArduinoSketchUploaderOptions.cs" />
@@ -67,64 +69,63 @@
     <Compile Include="Hardware\Memory\IMemory.cs" />
     <Compile Include="Hardware\Memory\Memory.cs" />
     <Compile Include="Hardware\Memory\MemoryType.cs" />
-    <Compile Include="Protocols\AVR109\Constants.cs" />
-    <Compile Include="Protocols\AVR109\Messages\CheckBlockSupportRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\CheckBlockSupportResponse.cs" />
-    <Compile Include="Protocols\AVR109\Messages\EnterProgrammingModeRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ExitBootLoaderRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\LeaveProgrammingModeRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReadSignatureBytesRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReadSignatureBytesResponse.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnProgrammerTypeRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnProgrammerTypeResponse.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnSoftwareIdentifierRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnSoftwareIdentifierResponse.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnSoftwareVersionRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnSoftwareVersionResponse.cs" />
-    <Compile Include="Protocols\AVR109\Messages\ReturnSupportedDeviceCodesRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\SelectDeviceTypeRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\SetAddressRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\StartBlockLoadRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\StartBlockReadRequest.cs" />
-    <Compile Include="Protocols\AVR109\Messages\StartBlockReadResponse.cs" />
-    <Compile Include="Protocols\STK500v1\Constants.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\EnableProgrammingModeRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\ExecuteProgramPageRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\ExecuteReadPageRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\GetParameterRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\GetSyncRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\LeaveProgrammingModeRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\EnableProgrammingModeResponse.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\ExecuteProgramPageRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\ExecuteProgramPageResponse.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\ExecuteReadPageResponse.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\ExecuteReadPageRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\GetParameterRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\GetParameterResponse.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\GetSyncRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\GetSyncResponse.cs" />
-    <Compile Include="Protocols\IMessage.cs" />
-    <Compile Include="Protocols\IRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\LoadAddressRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\ReadSignatureRequest.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\ReadSignatureResponse.cs" />
-    <Compile Include="Protocols\Request.cs" />
-    <Compile Include="Protocols\Response.cs" />
-    <Compile Include="Protocols\STK500v1\Messages\SetDeviceProgrammingParametersRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Constants.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\GetSyncResponse.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\LeaveProgrammingModeRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\LeaveProgrammingModeResponse.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\LoadAddressRequest.cs" />
-    <Compile Include="Protocols\STK500v2\Messages\LoadAddressResponse.cs" />
-    <Compile Include="BootloaderProgrammers\ArduinoBootloaderProgrammer.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Constants.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\CheckBlockSupportRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\CheckBlockSupportResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\EnterProgrammingModeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ExitBootLoaderRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReadSignatureBytesRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReadSignatureBytesResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnProgrammerTypeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnProgrammerTypeResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnSoftwareIdentifierRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnSoftwareIdentifierResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnSoftwareVersionRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnSoftwareVersionResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\ReturnSupportedDeviceCodesRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\SelectDeviceTypeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\SetAddressRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\StartBlockLoadRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\StartBlockReadRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\AVR109\Messages\StartBlockReadResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Constants.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\EnableProgrammingModeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\ExecuteProgramPageRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\ExecuteReadPageRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\GetParameterRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\GetSyncRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\EnableProgrammingModeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\EnableProgrammingModeResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\ExecuteProgramPageRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\ExecuteProgramPageResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\ExecuteReadPageResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\ExecuteReadPageRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\GetParameterRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\GetParameterResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\GetSyncRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\GetSyncResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\IMessage.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\IRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\LoadAddressRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\ReadSignatureRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\ReadSignatureResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\Request.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\Response.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\Messages\SetDeviceProgrammingParametersRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Constants.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\GetSyncResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\LeaveProgrammingModeResponse.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\LoadAddressRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\LoadAddressResponse.cs" />
     <Compile Include="BootloaderProgrammers\IBootloaderProgrammer.cs" />
-    <Compile Include="BootloaderProgrammers\OptibootBootloaderProgrammer.cs" />
-    <Compile Include="BootloaderProgrammers\SerialPortBootloaderProgrammer.cs" />
-    <Compile Include="BootloaderProgrammers\WiringBootloaderProgrammer.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v1\STK500v1BootloaderProgrammer.cs" />
+    <Compile Include="BootloaderProgrammers\ArduinoBootloaderProgrammer.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\STK500v2BootloaderProgrammer.cs" />
+    <Compile Include="IArduinoUploaderLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UploaderLogger.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

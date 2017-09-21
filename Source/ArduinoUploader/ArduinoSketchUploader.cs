@@ -3,148 +3,173 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ArduinoUploader.BootloaderProgrammers;
+using ArduinoUploader.BootloaderProgrammers.Protocols.AVR109;
+using ArduinoUploader.BootloaderProgrammers.Protocols.STK500v1;
+using ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2;
+using ArduinoUploader.BootloaderProgrammers.ResetBehavior;
 using ArduinoUploader.Hardware;
 using IntelHexFormatReader;
 using IntelHexFormatReader.Model;
-using NLog;
 using RJCP.IO.Ports;
 
 namespace ArduinoUploader
 {
     public class ArduinoSketchUploader
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private readonly ArduinoSketchUploaderOptions options;
-        private readonly IProgress<double> progress;
+        internal static IArduinoUploaderLogger Logger { get; set; }
 
-        public ArduinoSketchUploader(ArduinoSketchUploaderOptions options, IProgress<double> progress = null)
+        private readonly ArduinoSketchUploaderOptions _options;
+        private readonly IProgress<double> _progress;
+
+        public ArduinoSketchUploader(ArduinoSketchUploaderOptions options, 
+            IArduinoUploaderLogger logger = null, IProgress<double> progress = null)
         {
-            logger.Info("Starting ArduinoSketchUploader...");
-            this.options = options;
-            this.progress = progress;
+            Logger = logger;
+            Logger?.Info("Starting ArduinoSketchUploader...");
+            _options = options;
+            _progress = progress;
         }
 
         public void UploadSketch()
         {
-            var hexFileName = options.FileName;
-            logger.Info("Starting upload process for file '{0}'.", hexFileName);
-            string[] hexFileContents = null;
+            var hexFileName = _options.FileName;
+            string[] hexFileContents;
+            Logger?.Info($"Starting upload process for file '{hexFileName}'.");
             try
             {
                 hexFileContents = File.ReadAllLines(hexFileName);
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogErrorAndThrow(ex.Message);
+                Logger?.Error(ex.Message, ex);
+                throw;
             }
             UploadSketch(hexFileContents);
         }
 
         public void UploadSketch(IEnumerable<string> hexFileContents)
         {
-            var serialPortName = options.PortName;
-
-            var ports = SerialPortStream.GetPortNames();
-
-            if (!ports.Any() || ports.Distinct().SingleOrDefault(
-                x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
-            {
-                UploaderLogger.LogErrorAndThrow(
-                    string.Format("Specified COM port name '{0}' is not valid.", serialPortName));
-            }
-
-            logger.Trace("Creating serial port '{0}'...", serialPortName);
-            SerialPortBootloaderProgrammer programmer = null;
-
-            IMCU mcu = null;
-            SerialPortConfig serialPortConfig;
-
-            switch (options.ArduinoModel)
-            {
-                case ArduinoModel.Mega1284:
-                {
-                    mcu = new ATMega1284();
-                    serialPortConfig = new SerialPortConfig(serialPortName, 115200);
-                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
-                    break;
-                }
-                case ArduinoModel.Mega2560:
-                {
-                    mcu = new ATMega2560();
-                    serialPortConfig = new SerialPortConfig(serialPortName, 115200);
-                    programmer = new WiringBootloaderProgrammer(serialPortConfig, mcu);
-                    break;
-                }
-                case ArduinoModel.Leonardo:
-                case ArduinoModel.Micro:
-                {
-                    mcu = new ATMega32U4();
-                    serialPortConfig = new SerialPortConfig(serialPortName, 57600);
-                    programmer = new ButterflyBootloaderProgrammer(serialPortConfig, mcu);
-                    break;
-                }
-                case ArduinoModel.NanoR2:
-                {
-                    mcu = new ATMega168();
-                    serialPortConfig = new SerialPortConfig(serialPortName, 19200);
-                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
-                    break;
-                }
-                case ArduinoModel.NanoR3:
-                {
-                    mcu = new ATMega328P();
-                    serialPortConfig = new SerialPortConfig(serialPortName, 57600);
-                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
-                    break;
-                }
-                case ArduinoModel.UnoR3:
-                {
-                    mcu = new ATMega328P();
-                    serialPortConfig = new SerialPortConfig(serialPortName, 115200);
-                    programmer = new OptibootBootloaderProgrammer(serialPortConfig, mcu);
-                    break;
-                }
-                default:
-                {
-                    UploaderLogger.LogErrorAndThrow(
-                        string.Format("Unsupported model: {0}!", options.ArduinoModel));
-                    break;
-                }
-            }
-
             try
             {
-                programmer.Open();
+                var serialPortName = _options.PortName;
+                var allPortNames = SerialPortStream.GetPortNames();
+                var distinctPorts = allPortNames.Distinct().ToList();
 
-                logger.Info("Establishing sync...");
-                programmer.EstablishSync();
-                logger.Info("Sync established.");
+                // If we don't specify a COM port, automagically select one if there is only a single match.
+                if (string.IsNullOrWhiteSpace(serialPortName) && distinctPorts.SingleOrDefault() != null)
+                {
+                    Logger?.Info($"Port autoselected: {serialPortName}.");
+                    serialPortName = distinctPorts.Single();
+                }
+                // Or else, check that we have an unambiguous match. Throw an exception otherwise.
+                else if (!allPortNames.Any() || distinctPorts.SingleOrDefault(
+                             x => x.Equals(serialPortName, StringComparison.OrdinalIgnoreCase)) == null)
+                {
+                    throw new ArduinoUploaderException(
+                        $"Specified COM port name '{serialPortName}' is not valid.");
+                }
 
-                logger.Info("Checking device signature...");
-                programmer.CheckDeviceSignature();
-                logger.Info("Device signature checked.");
+                Logger?.Trace($"Creating serial port '{serialPortName}'...");
+                ArduinoBootloaderProgrammer programmer;
+                IMcu mcu;
+                SerialPortConfig serialPortConfig;
 
-                logger.Info("Initializing device...");
-                programmer.InitializeDevice();
-                logger.Info("Device initialized.");
+                switch (_options.ArduinoModel)
+                {
+                    case ArduinoModel.Mega1284:
+                    {
+                        mcu = new AtMega1284();
+                        serialPortConfig = new SerialPortConfig(serialPortName, 115200,
+                            new ResetThroughEnablingDtrBehavior(), new ResetThroughTogglingDtrRtsBehavior(250, 50), 250);
+                        programmer = new Stk500V1BootloaderProgrammer(serialPortConfig, mcu);
+                        break;
+                    }
+                    case ArduinoModel.Mega2560:
+                    {
+                        mcu = new AtMega2560();
+                        serialPortConfig = new SerialPortConfig(serialPortName, 115200,
+                            new ResetThroughEnablingDtrBehavior(), new ResetThroughTogglingDtrRtsBehavior(50, 50, true), 50);
+                        programmer = new Stk500V2BootloaderProgrammer(serialPortConfig, mcu);
+                        break;
+                    }
+                    case ArduinoModel.Leonardo:
+                    case ArduinoModel.Micro:
+                    {
+                        mcu = new AtMega32U4();
+                        serialPortConfig =
+                            new SerialPortConfig(serialPortName, 57600, new ResetThrough1200BpsBehavior(), null);
+                        programmer = new Avr109BootloaderProgrammer(serialPortConfig, mcu);
+                        break;
+                    }
+                    case ArduinoModel.NanoR2:
+                    {
+                        mcu = new AtMega168();
+                        serialPortConfig = new SerialPortConfig(serialPortName, 19200,
+                            new ResetThroughEnablingDtrBehavior(), new ResetThroughTogglingDtrRtsBehavior(250, 50), 250);
+                        programmer = new Stk500V1BootloaderProgrammer(serialPortConfig, mcu);
+                        break;
+                    }
+                    case ArduinoModel.NanoR3:
+                    {
+                        mcu = new AtMega328P();
+                        serialPortConfig = new SerialPortConfig(serialPortName, 57600,
+                            new ResetThroughEnablingDtrBehavior(), new ResetThroughTogglingDtrRtsBehavior(250, 50), 250);
+                        programmer = new Stk500V1BootloaderProgrammer(serialPortConfig, mcu);
+                        break;
+                    }
+                    case ArduinoModel.UnoR3:
+                    {
+                        mcu = new AtMega328P();
+                        serialPortConfig = new SerialPortConfig(serialPortName, 115200,
+                            new ResetThroughEnablingDtrBehavior(), new ResetThroughTogglingDtrRtsBehavior(250, 50), 250);
+                        programmer = new Stk500V1BootloaderProgrammer(serialPortConfig, mcu);
+                        break;
+                    }
+                    default:
+                    {
+                        throw new ArduinoUploaderException($"Unsupported model: {_options.ArduinoModel}!");
+                    }
+                }
 
-                logger.Info("Enabling programming mode on the device...");
-                programmer.EnableProgrammingMode();
-                logger.Info("Programming mode enabled.");
+                try
+                {
+                    programmer.Open();
 
-                logger.Info("Programming device...");
-                programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size), progress);
-                logger.Info("Device programmed.");
+                    Logger?.Info("Establishing sync...");
+                    programmer.EstablishSync();
+                    Logger?.Info("Sync established.");
 
-                logger.Info("Leaving programming mode...");
-                programmer.LeaveProgrammingMode();
-                logger.Info("Left programming mode!");
+                    Logger?.Info("Checking device signature...");
+                    programmer.CheckDeviceSignature();
+                    Logger?.Info("Device signature checked.");
+
+                    Logger?.Info("Initializing device...");
+                    programmer.InitializeDevice();
+                    Logger?.Info("Device initialized.");
+
+                    Logger?.Info("Enabling programming mode on the device...");
+                    programmer.EnableProgrammingMode();
+                    Logger?.Info("Programming mode enabled.");
+
+                    Logger?.Info("Programming device...");
+                    programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size), _progress);
+                    Logger?.Info("Device programmed.");
+
+                    Logger?.Info("Leaving programming mode...");
+                    programmer.LeaveProgrammingMode();
+                    Logger?.Info("Left programming mode!");
+                }
+                finally
+                {
+                    programmer.Close();
+                }
+                Logger?.Info("All done, shutting down!");
             }
-            finally
+            catch (Exception ex)
             {
-                programmer.Close();
+                Logger?.Error(ex.Message, ex);
+                throw;
             }
-            logger.Info("All done, shutting down!");
         }
 
         #region Private Methods
@@ -158,9 +183,9 @@ namespace ArduinoUploader
             }
             catch (Exception ex)
             {
-                UploaderLogger.LogErrorAndThrow(ex.Message);
+                Logger?.Error(ex.Message, ex);
+                throw;
             }
-            return null;
         }
 
         #endregion
