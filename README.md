@@ -92,7 +92,7 @@ uploader.UploadSketch();
 
 ## Logging ##
 
-In earlier versions of the library, it emitted log messages through a dependency on `NLog`. From an architectural point of view, it is suboptimal to be forcing a particular logging framework from the library code.
+In earlier versions of the library, it emitted log messages through a dependency on `NLog`. From an architectural point of view, it is suboptimal to be forcing a dependency on a particular logging framework from library code.
 
 A simple `IArduinoUploaderLogger` interface is exposed from within the library. Implement this interface, and pass an instance into the ArduinoSketchUploader constructor if you want to consume log messages (in varying levels, from *Info* to *Trace*).
 
@@ -129,4 +129,3 @@ private class NLogArduinoUploaderLogger : IArduinoUploaderLogger
     }
 }
 ```
-
