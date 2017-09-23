@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?><!-- The new msbuild allows you to set properties in this file that will be inherited by all projects -->
+<!-- see: http://blog.seravy.com/directory-build-targets-solution-wide-msbuild-target-part-2/ -->
+<Project>
+  <!-- These properties will be shared for all projects -->
+  <PropertyGroup>
+    <Version>0.0.0.0</Version>
+    <Product>ArduinoSketchUploader</Product>
+    <Description>ArduinoSketchUploader</Description>
+    <Copyright>Copyright (c) 2017</Copyright>
+    <Company>Ticket Solutions</Company>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- Treat warnings as errors for all projects -->
+  <PropertyGroup>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
+  </PropertyGroup>
+</Project>
