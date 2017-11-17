@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard20</TargetFrameworks>
+    <Version>3.1.0.0</Version>
+    <Company>Christophe Diericx</Company>
+    <Authors>Christophe Diericx</Authors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="IntelHexFormatReader" version="2.2.3" />

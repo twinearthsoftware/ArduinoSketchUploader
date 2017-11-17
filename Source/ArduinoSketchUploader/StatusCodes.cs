@@ -4,6 +4,7 @@
     {
         Success,
         ArduinoUploaderException,
-        GeneralRuntimeException
+        GeneralRuntimeException,
+        FailedToParseCommandLineArgs
     }
 }

@@ -1,8 +1,7 @@
 ﻿using ArduinoUploader.Hardware;
 using CommandLine;
-using CommandLine.Text;
 
-namespace ArduinoSketchUploader
+namespace ArduinoSketchUploaderNetCore
 {
     internal class CommandLineOptions
     {
@@ -18,15 +17,5 @@ namespace ArduinoSketchUploader
             HelpText = "Arduino model. Valid parameters are any of the following: "
                 + "[Leonardo, Mega1284, Mega2560, Micro, NanoR2, NanoR3, UnoR3].")]
         public ArduinoModel ArduinoModel { get; set; }
-
-        [ParserState]
-        public IParserState LastParserState { get; set; }
-
-        [HelpOption]
-        public string GetUsage()
-        {
-            return HelpText.AutoBuild(this,
-                current => HelpText.DefaultParsingErrorsHandler(this, current));
-        }
     }
 }

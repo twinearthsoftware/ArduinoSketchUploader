@@ -91,7 +91,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var bytes = request.Bytes;
             var length = bytes.Length;
             Logger?.Trace($"Sending {length} bytes: {Environment.NewLine}"
-                + "${BitConverter.ToString(bytes)}");
+                + $"{BitConverter.ToString(bytes)}");
             SerialPort.Write(bytes, 0, length);
         }
 
