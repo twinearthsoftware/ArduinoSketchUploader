@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Arduinos>
+    <Arduino model="Leonardo">
+      <Mcu>AtMega32U4</Mcu>
+      <BaudRate>57600</BaudRate>
+      <PreOpenResetBehavior>1200bps</PreOpenResetBehavior>
+      <SleepAfterOpen>0</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Avr109</Protocol>
+    </Arduino>
+    <Arduino model="Mega1284">
+      <Mcu>AtMega1284</Mcu>
+      <BaudRate>115200</BaudRate>
+      <PreOpenResetBehavior>DTR;true</PreOpenResetBehavior>
+      <CloseResetBehavior>DTR-RTS;250;50</CloseResetBehavior>
+      <SleepAfterOpen>250</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Stk500v1</Protocol>
+    </Arduino>
+    <Arduino model="Mega2560">
+      <Mcu>AtMega2560</Mcu>
+      <BaudRate>115200</BaudRate>
+      <PostOpenResetBehavior>DTR-RTS;50;250;true</PostOpenResetBehavior>
+      <CloseResetBehavior>DTR-RTS;250;50;true</CloseResetBehavior>
+      <SleepAfterOpen>250</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Stk500v2</Protocol>
+    </Arduino>
+    <Arduino model="Micro">
+      <Mcu>AtMega32U4</Mcu>
+      <BaudRate>57600</BaudRate>
+      <PreOpenResetBehavior>1200bps</PreOpenResetBehavior>
+      <SleepAfterOpen>0</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Avr109</Protocol>
+    </Arduino>
+    <Arduino model="NanoR2">
+      <Mcu>AtMega168</Mcu>
+      <BaudRate>19200</BaudRate>
+      <PreOpenResetBehavior>DTR;true</PreOpenResetBehavior>
+      <CloseResetBehavior>DTR-RTS;250;50</CloseResetBehavior>
+      <SleepAfterOpen>250</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Stk500v1</Protocol>
+    </Arduino>
+    <Arduino model="NanoR3">
+      <Mcu>AtMega328P</Mcu>
+      <BaudRate>57600</BaudRate>
+      <PreOpenResetBehavior>DTR;true</PreOpenResetBehavior>
+      <CloseResetBehavior>DTR-RTS;250;50</CloseResetBehavior>
+      <SleepAfterOpen>250</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Stk500v1</Protocol>
+    </Arduino>
+    <Arduino model="UnoR3">
+      <Mcu>AtMega328P</Mcu>
+      <BaudRate>115200</BaudRate>
+      <PreOpenResetBehavior>DTR;true</PreOpenResetBehavior>
+      <!--<PostOpenResetBehavior>DTR-RTS;50;250;false</PostOpenResetBehavior> -->
+      <CloseResetBehavior>DTR-RTS;50;250;false</CloseResetBehavior>
+      <SleepAfterOpen>250</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Stk500v1</Protocol>
+    </Arduino>
+  </Arduinos>
+</Configuration>

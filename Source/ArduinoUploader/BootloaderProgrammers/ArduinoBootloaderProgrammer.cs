@@ -16,8 +16,6 @@ namespace ArduinoUploader.BootloaderProgrammers
             SerialPortConfig = serialPortConfig;
         }
 
-        protected int MaxSyncRetries => 20;
-
         protected SerialPortStream SerialPort { get; set; }
 
         public override void Open()
@@ -32,9 +30,12 @@ namespace ArduinoUploader.BootloaderProgrammers
                 WriteTimeout = SerialPortConfig.WriteTimeOut
             };
 
-            var postOpen = SerialPortConfig.PostOpenResetBehavior;
-            if (postOpen != null)
-                SerialPort = postOpen.Reset(SerialPort, SerialPortConfig);
+            var preOpen = SerialPortConfig.PreOpenResetBehavior;
+            if (preOpen != null)
+            {
+                Logger?.Info($"Executing Post Open behavior ({preOpen})...");
+                SerialPort = preOpen.Reset(SerialPort, SerialPortConfig);
+            }
 
             try
             {
@@ -51,6 +52,13 @@ namespace ArduinoUploader.BootloaderProgrammers
                     $"Unable to open serial port {portName} - {ex.Message}.");
             }
             Logger?.Trace($"Opened serial port {portName} with baud rate {baudRate}!");
+
+            var postOpen = SerialPortConfig.PostOpenResetBehavior;
+            if (postOpen != null)
+            {
+                Logger?.Info($"Executing Post Open behavior ({postOpen})...");
+                SerialPort = postOpen.Reset(SerialPort, SerialPortConfig);
+            }
 
             var sleepAfterOpen = SerialPortConfig.SleepAfterOpen;
             if (SerialPortConfig.SleepAfterOpen <= 0) return;
@@ -91,7 +99,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             var bytes = request.Bytes;
             var length = bytes.Length;
             Logger?.Trace($"Sending {length} bytes: {Environment.NewLine}"
-                + "${BitConverter.ToString(bytes)}");
+                + $"{BitConverter.ToString(bytes)}");
             SerialPort.Write(bytes, 0, length);
         }
 

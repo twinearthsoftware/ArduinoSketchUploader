@@ -42,16 +42,21 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\Arduino.cs" />
     <Compile Include="ArduinoUploaderException.cs" />
     <Compile Include="BootloaderProgrammers\Protocols\AVR109\AVR109BootloaderProgrammer.cs" />
     <Compile Include="BootloaderProgrammers\ResetBehavior\IResetBehavior.cs" />
     <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThrough1200BpsBehavior.cs" />
-    <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThroughEnablingDtrBehavior.cs" />
+    <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThroughTogglingDtrBehavior.cs" />
     <Compile Include="BootloaderProgrammers\ResetBehavior\ResetThroughTogglingDtrRtsBehavior.cs" />
     <Compile Include="BootloaderProgrammers\SerialPortConfig.cs" />
     <Compile Include="BootloaderProgrammers\WaitHelper.cs" />
+    <Compile Include="Config\Configuration.cs" />
+    <Compile Include="Config\McuIdentifier.cs" />
+    <Compile Include="Config\Protocol.cs" />
     <Compile Include="Hardware\ArduinoModel.cs" />
     <Compile Include="ArduinoSketchUploader.cs" />
     <Compile Include="ArduinoSketchUploaderOptions.cs" />
@@ -127,7 +132,9 @@
     <Compile Include="IArduinoUploaderLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="ArduinoUploader.xml" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="ArduinoUploader.nuspec">
       <SubType>Designer</SubType>

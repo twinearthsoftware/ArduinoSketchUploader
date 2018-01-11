@@ -59,7 +59,7 @@ namespace ArduinoUploader.BootloaderProgrammers
                     var bytesAlreadyPresent = ExecuteReadPage(flashMem);
                     if (bytesAlreadyPresent.SequenceEqual(bytesToCopy))
                     {
-                        Logger?.Trace(
+                        Logger?.Debug(
                             "Bytes to be written are identical to bytes already present - skipping actual write!");
                         continue;
                     }

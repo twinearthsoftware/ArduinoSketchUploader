@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using ArduinoUploader.BootloaderProgrammers.Protocols.STK500v1.Messages;
 using ArduinoUploader.Hardware;
 using ArduinoUploader.Hardware.Memory;
@@ -14,22 +15,28 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v1
 
         public override void EstablishSync()
         {
-            int i;
-            for (i = 0; i < MaxSyncRetries; i++)
+            Send(new GetSyncRequest());
+
+            const int maxRetries = 256;
+            var retryCounter = 0;
+            while (retryCounter++ < maxRetries)
             {
-                Send(new GetSyncRequest());
                 var result = Receive<GetSyncResponse>();
                 if (result == null) continue;
                 if (result.IsInSync) break;
+                Thread.Sleep(20);
             }
-
-            if (i == MaxSyncRetries)
+            if (retryCounter == maxRetries)
                 throw new ArduinoUploaderException(
-                    $"Unable to establish sync after {MaxSyncRetries} retries.");
+                    $"Unable to establish sync after {maxRetries} retries.");
 
-            var nextByte = ReceiveNext();
-
-            if (nextByte != Constants.RespStkOk)
+            retryCounter = 0;
+            while (retryCounter++ < maxRetries)
+            {
+                var nextByte = ReceiveNext();
+                if (nextByte == Constants.RespStkOk) break;
+            }
+            if (retryCounter == maxRetries)
                 throw new ArduinoUploaderException("Unable to establish sync.");
         }
 
