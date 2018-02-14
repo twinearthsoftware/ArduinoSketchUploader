@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\ExecuteSpiCommandRequest.cs" />
+    <Compile Include="BootloaderProgrammers\Protocols\STK500v2\Messages\ExecuteSpiCommandResponse.cs" />
     <Compile Include="Config\Arduino.cs" />
     <Compile Include="ArduinoUploaderException.cs" />
     <Compile Include="BootloaderProgrammers\Protocols\AVR109\AVR109BootloaderProgrammer.cs" />
@@ -133,7 +135,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ArduinoUploader.xml" />
+    <EmbeddedResource Include="ArduinoUploader.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="ArduinoUploader.nuspec">

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Xml.Serialization;
 using ArduinoUploader.BootloaderProgrammers;
 using ArduinoUploader.BootloaderProgrammers.Protocols.AVR109;
@@ -116,6 +117,9 @@ namespace ArduinoUploader
 
                 try
                 {
+                    Logger?.Info("Establishing memory block contents...");
+                    var memoryBlockContents = ReadHexFile(hexFileContents, mcu.Flash.Size);
+
                     programmer.Open();
 
                     Logger?.Info("Establishing sync...");
@@ -135,8 +139,12 @@ namespace ArduinoUploader
                     Logger?.Info("Programming mode enabled.");
 
                     Logger?.Info("Programming device...");
-                    programmer.ProgramDevice(ReadHexFile(hexFileContents, mcu.Flash.Size), _progress);
+                    programmer.ProgramDevice(memoryBlockContents, _progress);
                     Logger?.Info("Device programmed.");
+
+                    Logger?.Info("Verifying program...");
+                    programmer.VerifyProgram(memoryBlockContents, _progress);
+                    Logger?.Info("Verified program!");
 
                     Logger?.Info("Leaving programming mode...");
                     programmer.LeaveProgrammingMode();

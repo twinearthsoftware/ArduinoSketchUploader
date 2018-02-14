@@ -80,7 +80,6 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
             }
 
             wrappedResponseBytes[0] = Constants.MessageStart;
-            Logger?.Trace("Received MESSAGE_START.");
 
             var seqNumber = ReceiveNext();
             if (seqNumber != LastCommandSequenceNumber)
@@ -89,7 +88,6 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
                 return null;
             }
             wrappedResponseBytes[1] = _sequenceNumber;
-            Logger?.Trace($"Received sequence number: {_sequenceNumber}.");
 
             var messageSizeHighByte = ReceiveNext();
             if (messageSizeHighByte == -1)
@@ -108,7 +106,6 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
             wrappedResponseBytes[3] = (byte) messageSizeLowByte;
 
             var messageSize = (messageSizeHighByte << 8) + messageSizeLowByte;
-            Logger?.Trace($"Received message size: {messageSize}.");
 
             var token = ReceiveNext();
             if (token != Constants.Token)
@@ -117,8 +114,6 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
                 return null;
             }
             wrappedResponseBytes[4] = (byte) token;
-
-            Logger?.Trace("Received TOKEN.");
 
             var payload = ReceiveNext(messageSize);
             if (payload == null)
@@ -176,17 +171,87 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
             var hardwareVersion = GetParameterValue(Constants.ParamHwVer);
             var softwareMajor = GetParameterValue(Constants.ParamSwMajor);
             var softwareMinor = GetParameterValue(Constants.ParamSwMinor);
+            var vTarget = GetParameterValue(Constants.ParamVTarget);
             Logger?.Info(
                 $"Retrieved software version: {hardwareVersion} (hardware) "
                 + $"- {softwareMajor}.{softwareMinor} (software).");
+            Logger?.Info($"Parameter VTarget: {vTarget}.");
         }
 
         public override void EnableProgrammingMode()
         {
             Send(new EnableProgrammingModeRequest(Mcu));
             var response = Receive<EnableProgrammingModeResponse>();
-            if (response == null)
+            if (response == null || response.Status != Constants.StatusCmdOk)
                 throw new ArduinoUploaderException("Unable to enable programming mode on the device!");
+
+            // TODO: properly decode SPI instructions...
+
+            // --- Device signature
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x30, 0x00, 0x00, 0x00 }));
+            var spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x30, 0x00, 0x01, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (response == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x30, 0x00, 0x02, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (response == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            // --- Fuses
+
+            // LFuse
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x50, 0x00, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x50, 0x00, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x50, 0x00, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            // HFuse
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x58, 0x08, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x58, 0x08, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x58, 0x08, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            // EFuse
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x50, 0x08, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x50, 0x08, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
+
+            Send(new ExecuteSpiCommandRequest(4, 4, 0, new byte[] { 0x50, 0x08, 0x00, 0x00 }));
+            spiResponse = Receive<ExecuteSpiCommandResponse>();
+            if (spiResponse == null || spiResponse.Status != Constants.StatusCmdOk)
+                throw new ArduinoUploaderException("Unable to execute SPI command!");
         }
 
         public override void LeaveProgrammingMode()
@@ -228,7 +293,7 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
 
         public override void LoadAddress(IMemory memory, int offset)
         {
-            Logger?.Trace($"Sending load address request: {offset}.");
+            Logger?.Trace($"Sending load address request: {offset:X2}.");
             offset = offset >> 1;
             Send(new LoadAddressRequest(memory, offset));
             var response = Receive<LoadAddressResponse>();
@@ -238,7 +303,7 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2
 
         private uint GetParameterValue(byte param)
         {
-            Logger?.Trace($"Retrieving parameter '{param}'...");
+            Logger?.Trace($"Retrieving parameter '{param:X2}'...");
             Send(new GetParameterRequest(param));
             var response = Receive<GetParameterResponse>();
             if (response == null || !response.IsSuccess)

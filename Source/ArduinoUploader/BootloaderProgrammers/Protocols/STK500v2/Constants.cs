@@ -11,6 +11,7 @@
         internal const byte CmdReadFlashIsp = 0x14;
         internal const byte CmdProgramEepromIsp = 0x15;
         internal const byte CmdReadEepromIsp = 0x16;
+        internal const byte CmdSpiMulti = 0x1d;
 
         internal const byte StatusCmdOk = 0x00;
 
@@ -20,5 +21,6 @@
         internal const byte ParamHwVer = 0x90;
         internal const byte ParamSwMajor = 0x91;
         internal const byte ParamSwMinor = 0x92;
+        internal const byte ParamVTarget = 0x94;
     }
 }

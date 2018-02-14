@@ -19,7 +19,7 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v2.Messages
                 memory.Delay,
                 memory.CmdBytesWrite[0],
                 memory.CmdBytesWrite[1],
-                memory.CmdBytesWrite[2],
+                memory.CmdBytesRead[0],
                 memory.PollVal1,
                 memory.PollVal2
             };

@@ -22,7 +22,7 @@ namespace ArduinoUploader.Hardware
         public override byte SynchLoops => 32;
 
         public override byte ByteDelay => 0;
-
+        
         public override byte PollIndex => 3;
 
         public override byte PollValue => 0x53;

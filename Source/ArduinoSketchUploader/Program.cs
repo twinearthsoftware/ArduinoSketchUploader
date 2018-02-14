@@ -54,7 +54,7 @@ namespace ArduinoSketchUploader
             };
 
             var progress = new Progress<double>(
-                p => logger.Info($"Programming progress: {p * 100:F1}% ..."));
+                p => logger.Info($"Upload progress: {p * 100:F1}% ..."));
 
             var uploader = new ArduinoUploader.ArduinoSketchUploader(options, logger, progress);
             try
