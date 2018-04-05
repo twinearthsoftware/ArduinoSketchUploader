@@ -15,12 +15,12 @@ namespace ArduinoUploader.BootloaderProgrammers.Protocols.STK500v1
 
         public override void EstablishSync()
         {
-            Send(new GetSyncRequest());
-
             const int maxRetries = 256;
             var retryCounter = 0;
             while (retryCounter++ < maxRetries)
             {
+                SerialPort.DiscardInBuffer();
+                Send(new GetSyncRequest());
                 var result = Receive<GetSyncResponse>();
                 if (result == null) continue;
                 if (result.IsInSync) break;
