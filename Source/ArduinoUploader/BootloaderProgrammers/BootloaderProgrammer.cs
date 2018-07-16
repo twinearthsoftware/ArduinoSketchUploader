@@ -75,17 +75,32 @@ namespace ArduinoUploader.BootloaderProgrammers
             for (offset = 0; offset < sizeToVerify; offset += pageSize)
             {
                 progress?.Report((double) (sizeToVerify + offset) / (sizeToVerify * 2));
-                Logger?.Debug($"Executing verification of bytes @ address {offset} (page size {pageSize})...");
-                var bytesToVerify = memoryBlock.Cells.Skip(offset).Take(pageSize).Select(x => x.Value).ToArray();
-                LoadAddress(flashMem, offset);
-                var bytesPresent = ExecuteReadPage(flashMem);
-                var succeeded = bytesToVerify.SequenceEqual(bytesPresent);
-                if (succeeded) continue;
 
-                Logger?.Info(
-                    $"Expected: {BitConverter.ToString(bytesToVerify)}."
-                    + $"{Environment.NewLine}Read after write: {BitConverter.ToString(bytesPresent)}");
-                throw new ArduinoUploaderException("Difference encountered during verification!");
+                var needsVerify = false;
+                for (var i = offset; i < offset + pageSize; i++)
+                {
+                    if (!memoryBlock.Cells[i].Modified) continue;
+                    needsVerify = true;
+                    break;
+                }
+                if (needsVerify)
+                {
+                    Logger?.Debug($"Executing verification of bytes @ address {offset} (page size {pageSize})...");
+                    var bytesToVerify = memoryBlock.Cells.Skip(offset).Take(pageSize).Select(x => x.Value).ToArray();
+                    LoadAddress(flashMem, offset);
+                    var bytesPresent = ExecuteReadPage(flashMem);
+                    var succeeded = bytesToVerify.SequenceEqual(bytesPresent);
+                    if (succeeded) continue;
+
+                    Logger?.Info(
+                        $"Expected: {BitConverter.ToString(bytesToVerify)}."
+                        + $"{Environment.NewLine}Read after write: {BitConverter.ToString(bytesPresent)}");
+                    throw new ArduinoUploaderException("Difference encountered during verification!");
+                }
+                else
+                {
+                    Logger?.Trace("Skip verifying page...");
+                }
             }
             Logger?.Info($"{sizeToVerify} bytes verified!");
         }
