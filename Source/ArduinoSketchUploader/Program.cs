@@ -1,6 +1,7 @@
 ﻿using System;
 using ArduinoUploader;
-using CommandLine;
+using ArduinoUploader.Hardware;
+using McMaster.Extensions.CommandLineUtils;
 using NLog;
 
 namespace ArduinoSketchUploader
@@ -40,36 +41,52 @@ namespace ArduinoSketchUploader
             }
         }
 
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
-            var logger = new ArduinoSketchUploaderLogger();
-            var commandLineOptions = new CommandLineOptions();
-            if (!Parser.Default.ParseArguments(args, commandLineOptions)) return;
+            using (var app = new CommandLineApplication())
+            {
+                app.HelpOption("-h|--help");
+                var arduinoModel = app.Option<ArduinoModel>("-m|--model <MODEL>",
+                    "Device model",
+                    CommandOptionType.SingleValue).IsRequired();
+                var arduinoPort = app.Option<string>("-p|--port <PORT>",
+                    "Name of the COM port where the Arduino is attached (e.g. 'COM1', 'COM2', 'COM3'...).",
+                    CommandOptionType.SingleValue);
+                var firmwareFile = app.Option<string>("-f|--file <FILE>",
+                     "Arduino model. Valid parameters are any of the following: [Leonardo, Mega1284, Mega2560, Micro, NanoR2, NanoR3, UnoR3].",
+                    CommandOptionType.SingleValue).IsRequired();
 
-            var options = new ArduinoSketchUploaderOptions
-            {
-                PortName = commandLineOptions.PortName,
-                FileName = commandLineOptions.FileName,
-                ArduinoModel = commandLineOptions.ArduinoModel
-            };
+                app.OnExecute(() =>
+                {
+                    var options = new ArduinoSketchUploaderOptions
+                    {
+                        PortName = arduinoPort.ParsedValue,
+                        FileName = firmwareFile.ParsedValue,
+                        ArduinoModel = arduinoModel.ParsedValue
+                    };
 
-            var progress = new Progress<double>(
-                p => logger.Info($"Upload progress: {p * 100:F1}% ..."));
+                    var logger = new ArduinoSketchUploaderLogger();
+                    var progress = new Progress<double>(
+                        p => logger.Info($"Upload progress: {p * 100:F1}% ..."));
 
-            var uploader = new ArduinoUploader.ArduinoSketchUploader(options, logger, progress);
-            try
-            {
-                uploader.UploadSketch();
-                Environment.Exit((int) StatusCodes.Success);
-            }
-            catch (ArduinoUploaderException)
-            {
-                Environment.Exit((int) StatusCodes.ArduinoUploaderException);
-            }
-            catch (Exception ex)
-            {
-                logger.Error($"Unexpected exception: {ex.Message}!", ex);
-                Environment.Exit((int) StatusCodes.GeneralRuntimeException);
+                    var uploader = new ArduinoUploader.ArduinoSketchUploader(options, logger, progress);
+                    try
+                    {
+                        uploader.UploadSketch();
+                        return (int)StatusCodes.Success;
+                    }
+                    catch (ArduinoUploaderException)
+                    {
+                        return (int)StatusCodes.ArduinoUploaderException;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error($"Unexpected exception: {ex.Message}!", ex);
+                        return (int)StatusCodes.GeneralRuntimeException;
+                    }
+                });
+
+                return app.Execute(args);
             }
         }
 
