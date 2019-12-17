@@ -14,7 +14,8 @@ namespace ArduinoUploader.BootloaderProgrammers
             IResetBehavior closeResetAction,
             int sleepAfterOpen = 0,
             int readTimeout = DefaultTimeout,
-            int writeTimeout = DefaultTimeout)
+            int writeTimeout = DefaultTimeout,
+            bool triggerBootloader = true)
         {
             PortName = portName;
             BaudRate = baudRate;
@@ -24,6 +25,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             SleepAfterOpen = sleepAfterOpen;
             ReadTimeOut = readTimeout;
             WriteTimeOut = writeTimeout;
+            TriggerBootloader = triggerBootloader;
         }
 
         public string PortName { get; set; }
@@ -34,5 +36,7 @@ namespace ArduinoUploader.BootloaderProgrammers
         public int SleepAfterOpen { get; set; }
         public int ReadTimeOut { get; set; }
         public int WriteTimeOut { get; set; }
+        public bool TriggerBootloader { get; set; }
+
     }
 }
