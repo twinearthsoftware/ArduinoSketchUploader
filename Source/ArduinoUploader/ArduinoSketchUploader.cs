@@ -78,6 +78,7 @@ namespace ArduinoUploader
                 IMcu mcu;
 
                 var model = _options.ArduinoModel.ToString();
+
                 var hardwareConfig = ReadConfiguration();
                 var modelOptions = hardwareConfig.Arduinos.SingleOrDefault(
                     x => x.Model.Equals(model, StringComparison.OrdinalIgnoreCase));
@@ -100,10 +101,12 @@ namespace ArduinoUploader
                 var preOpenResetBehavior = ParseResetBehavior(modelOptions.PreOpenResetBehavior);
                 var postOpenResetBehavior = ParseResetBehavior(modelOptions.PostOpenResetBehavior);
                 var closeResetBehavior = ParseResetBehavior(modelOptions.CloseResetBehavior);
+                var triggerBootloader = (_options.TriggerBootloader) ? true : false;
+
 
                 var serialPortConfig = new SerialPortConfig(serialPortName,
                     modelOptions.BaudRate, preOpenResetBehavior, postOpenResetBehavior, closeResetBehavior,
-                    modelOptions.SleepAfterOpen, modelOptions.ReadTimeout, modelOptions.WriteTimeout);
+                    modelOptions.SleepAfterOpen, modelOptions.ReadTimeout, modelOptions.WriteTimeout, triggerBootloader);
 
                 switch (modelOptions.Protocol)
                 {

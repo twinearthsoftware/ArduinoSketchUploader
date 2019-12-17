@@ -9,5 +9,7 @@ namespace ArduinoUploader
         public string PortName { get; set; }
 
         public ArduinoModel ArduinoModel { get; set; }
+
+        public bool TriggerBootloader { get; set; }
     }
 }
