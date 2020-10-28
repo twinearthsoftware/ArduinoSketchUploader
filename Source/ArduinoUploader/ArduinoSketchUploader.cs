@@ -63,10 +63,10 @@ namespace ArduinoUploader
             if (modelOptions == null)
                 throw new ArduinoUploaderException($"Unable to find configuration for '{_options.ArduinoModel}'!");
 
-            UploadSketch(modelOptions, hexFileContents, _options.PortName);
+            UploadSketch(modelOptions, hexFileContents, _options.PortName, _options.Verify);
         }
 
-        public void UploadSketch(Arduino modelOptions, IEnumerable<string> hexFileContents, string serialPortName = null)
+        public void UploadSketch(Arduino modelOptions, IEnumerable<string> hexFileContents, string serialPortName = null, bool verify = true)
         {
             try
             {
@@ -148,9 +148,12 @@ namespace ArduinoUploader
                     programmer.ProgramDevice(memoryBlockContents, _progress);
                     Logger?.Info("Device programmed.");
 
-                    Logger?.Info("Verifying program...");
-                    programmer.VerifyProgram(memoryBlockContents, _progress);
-                    Logger?.Info("Verified program!");
+                    if (verify)
+                    {
+                        Logger?.Info("Verifying program...");
+                        programmer.VerifyProgram(memoryBlockContents, _progress);
+                        Logger?.Info("Verified program!");
+                    }
 
                     Logger?.Info("Leaving programming mode...");
                     programmer.LeaveProgrammingMode();
