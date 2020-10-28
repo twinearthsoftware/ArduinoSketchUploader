@@ -50,7 +50,8 @@ namespace ArduinoSketchUploader
             {
                 PortName = commandLineOptions.PortName,
                 FileName = commandLineOptions.FileName,
-                ArduinoModel = commandLineOptions.ArduinoModel
+                ArduinoModel = commandLineOptions.ArduinoModel,
+                Verify = commandLineOptions.Verify
             };
 
             var progress = new Progress<double>(

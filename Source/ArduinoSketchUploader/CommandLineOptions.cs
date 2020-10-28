@@ -19,6 +19,10 @@ namespace ArduinoSketchUploader
                 + "[Leonardo, Mega1284, Mega2560, Micro, NanoR2, NanoR3, UnoR3].")]
         public ArduinoModel ArduinoModel { get; set; }
 
+        [Option('v', "verify", 
+            HelpText = "Whether to verify what's written to flash.")]
+        public bool Verify { get; set; }
+
         [ParserState]
         public IParserState LastParserState { get; set; }
 
