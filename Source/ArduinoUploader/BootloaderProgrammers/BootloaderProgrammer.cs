@@ -39,7 +39,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             int offset;
             for (offset = 0; offset < sizeToWrite; offset += pageSize)
             {
-                progress?.Report((double) offset / (sizeToWrite * 2));
+                progress?.Report((double) offset / sizeToWrite);
 
                 var needsWrite = false;
                 for (var i = offset; i < offset + pageSize; i++)
@@ -74,7 +74,7 @@ namespace ArduinoUploader.BootloaderProgrammers
             int offset;
             for (offset = 0; offset < sizeToVerify; offset += pageSize)
             {
-                progress?.Report((double) (sizeToVerify + offset) / (sizeToVerify * 2));
+                progress?.Report((double) offset / sizeToVerify);
 
                 var needsVerify = false;
                 for (var i = offset; i < offset + pageSize; i++)
