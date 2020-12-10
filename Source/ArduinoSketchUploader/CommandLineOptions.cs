@@ -16,7 +16,7 @@ namespace ArduinoSketchUploader
 
         [Option('m', "model", Required = true,
             HelpText = "Arduino model. Valid parameters are any of the following: "
-                + "[Leonardo, Mega1284, Mega2560, Micro, NanoR2, NanoR3, UnoR3].")]
+                + "[Leonardo, Mega1284[P], Mega2560, Micro, NanoR2, NanoR3, UnoR3].")]
         public ArduinoModel ArduinoModel { get; set; }
 
         [Option('v', "verify", 

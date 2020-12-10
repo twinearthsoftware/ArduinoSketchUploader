@@ -94,6 +94,7 @@ namespace ArduinoUploader
                 switch (modelOptions.Mcu)
                 {
                     case McuIdentifier.AtMega1284: mcu = new AtMega1284(); break;
+                    case McuIdentifier.AtMega1284P: mcu = new AtMega1284P(); break;
                     case McuIdentifier.AtMega2560: mcu = new AtMega2560(); break;
                     case McuIdentifier.AtMega32U4: mcu = new AtMega32U4(); break;
                     case McuIdentifier.AtMega328P: mcu = new AtMega328P(); break;
