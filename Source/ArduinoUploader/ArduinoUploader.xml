@@ -20,6 +20,16 @@
       <WriteTimeout>1000</WriteTimeout>
       <Protocol>Stk500v1</Protocol>
     </Arduino>
+    <Arduino model="Mega1284P">
+      <Mcu>AtMega1284P</Mcu>
+      <BaudRate>115200</BaudRate>
+      <PreOpenResetBehavior>DTR;true</PreOpenResetBehavior>
+      <CloseResetBehavior>DTR-RTS;250;50</CloseResetBehavior>
+      <SleepAfterOpen>250</SleepAfterOpen>
+      <ReadTimeout>1000</ReadTimeout>
+      <WriteTimeout>1000</WriteTimeout>
+      <Protocol>Stk500v1</Protocol>
+    </Arduino>
     <Arduino model="Mega2560">
       <Mcu>AtMega2560</Mcu>
       <BaudRate>115200</BaudRate>
