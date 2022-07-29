@@ -58,4 +58,9 @@ namespace ArduinoUploader.Hardware
             }
         };
     }
+
+    internal class AtMega1284P : AtMega1284
+    {
+        public override string DeviceSignature => "1E-97-05";
+    }
 }

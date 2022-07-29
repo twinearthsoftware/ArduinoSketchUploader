@@ -4,6 +4,7 @@
     {
         Leonardo,
         Mega1284,
+        Mega1284P,
         Mega2560,
         Micro,
         NanoR2,
